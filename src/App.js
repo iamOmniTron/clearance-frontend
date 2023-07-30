@@ -7,6 +7,11 @@ import AdminOverview from "./pages/admin";
 import ManageSessions from "./pages/admin/sessions";
 import ManageUsers from "./pages/admin/users";
 import SingleUser from "./pages/admin/user";
+import FormsListPage from "./pages/admin/forms";
+import StagesPage from "./pages/admin/stages";
+import AdminLogin from "./pages/admin/login";
+import UserProfile from "./pages/user/profile";
+import UserOverview from "./pages/user";
 
 
 
@@ -20,15 +25,18 @@ function App() {
           <Route path="/login" element={<LoginUser/>}/>
           {/* STUDENTS ROUTE */}
           <Route path="/student" element={<UserDashboard/>}>
-
+            <Route path="" index element={<UserOverview/>}/>
+            <Route path="profile" element={<UserProfile/>}/>
           </Route>
           {/* ADMIN ROUTE */}
+            <Route path="/admin/login"  element={<AdminLogin/>}/>
           <Route path="/admin" element={<AdminDashboard/>}>
-            {/* <Route path="/login"/> */}
             <Route path="" index element={<AdminOverview/>}/>
             <Route path="sessions" element={<ManageSessions/>}/>
             <Route path="users" element={<ManageUsers/>}/>
             <Route path="users/user" element={<SingleUser/>}/>
+            <Route path="settings/forms" element={<FormsListPage/>}/>
+            <Route path="settings/stages" element={<StagesPage/>}/>
           </Route>
         </Routes>
       </Router>

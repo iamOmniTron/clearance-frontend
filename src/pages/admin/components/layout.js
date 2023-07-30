@@ -42,14 +42,14 @@ const USER_DASH_LINKS = [
         ]
     },
     {
-        key:"businesses",
+        key:"sessions",
         label:<b>Sessions</b>,
         icon:<BsFillCalendar2Fill style={{
             fontSize:"2em"
         }}/>,
         children:[
             {
-                key:"manage-business",
+                key:"manage-sessions",
                 label:<Link to="/admin/sessions"><b>Manage Session</b></Link>,
                 icon:<LuCalendarClock style={{
                     fontSize:"2em"
@@ -65,15 +65,15 @@ const USER_DASH_LINKS = [
         }}/>,
         children:[
             {
-                key:"tax",
-                label:<Link to="/admin/dashboard/taxes"><b>Forms</b></Link>,
+                key:"forms",
+                label:<Link to="/admin/settings/forms"><b>Forms</b></Link>,
                 icon:<FaWpforms style={{
                     fontSize:"2em"
                 }}/>
             },
             {
-                key:"types",
-                label:<Link to="/admin/dashboard/business-types"><b>Stages</b></Link>,
+                key:"stages",
+                label:<Link to="/admin/settings/stages"><b>Stages</b></Link>,
                 icon:<BiSolidHourglass style={{
                     fontSize:"2em"
                 }}/>

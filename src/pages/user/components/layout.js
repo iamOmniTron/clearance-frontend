@@ -6,38 +6,33 @@ import { MenuFoldOutlined,MenuUnfoldOutlined } from "@ant-design/icons";
 import { Link, Outlet } from "react-router-dom";
 import {useState} from "react"
 import {BiHistory} from "react-icons/bi"
-import {FaUserCog} from "react-icons/fa"
+import {FaUser, FaUserCog} from "react-icons/fa"
 
 
 
 const USER_DASH_LINKS = [
     {
         key:"overview",
-        label:<Link to="/dashboard"><b>Overview</b></Link>,
+        label:<Link to="/student"><b>Overview</b></Link>,
         icon:<RxDashboard style={{
             fontSize:"2em"
         }}/>
     },
     {
-        key:"payment",
-        label:<Link to="/dashboard/payment"><b>Payment</b></Link>,
-        icon:<ImPaypal style={{
-            fontSize:"2em"
-        }}/>
-    },
-    {
         key:"biodata",
-        label:<Link to="/dashboard/profile"><b>Bio-Data</b></Link>,
+        label:<b>Bio-Data</b>,
         icon:<FaUserCog style={{
             fontSize:"2em"
-        }}/>
-    },
-    {
-        key:"history",
-        label:<Link to="/dashboard/payment-history"><b>History</b></Link>,
-        icon: <BiHistory style={{
-            fontSize:"2em"
-        }}/>
+        }}/>,
+        children:[
+            {
+                key:"profile",
+                label:<Link to="/student/profile"><b>Profile</b></Link>,
+                icon:<FaUser style={{
+                    fontSize:"2em"
+                }}/>
+            }
+        ]
     }
 ]
 
@@ -55,7 +50,7 @@ export default function UserDashboardLayout(){
                 display:"flex",
             }}>
                 <Sider width={300} trigger={null} collapsible collapsed={isClosed} style={{
-                    backgroundColor:"lightgreen",
+                    backgroundColor:"yellowgreen",
                     display:"flex",
                     flexDirection:"column",
                     height:"100vh",
@@ -70,9 +65,10 @@ export default function UserDashboardLayout(){
                     </div>
                     <Menu
                     style={{
-                        backgroundColor:"lightgreen",
+                        backgroundColor:"yellowgreen",
                         color:"white"
                     }}
+                        theme="light"
                         mode="inline"
                         items={USER_DASH_LINKS}
                         />

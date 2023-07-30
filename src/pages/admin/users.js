@@ -1,10 +1,11 @@
-import { Breadcrumb,Typography,Tag, Button,Space} from "antd";
+import { Breadcrumb,Typography,Tag, Button,Space, Modal,Input, Form} from "antd";
 import { RxDashboard } from "react-icons/rx";
 import DataTable from "../../components/datatable";
 import { FaUsers } from "react-icons/fa";
 import { USERS } from "../../DB/users";
 import {DownloadOutlined,PlusOutlined,UploadOutlined,EyeOutlined} from "@ant-design/icons"
 import { BiTrash } from "react-icons/bi";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const {Title} = Typography;
@@ -30,6 +31,11 @@ const USERS_TABLE_COLUMNS = [
         title:"E-Mail",
         dataIndex:"email",
         key:"email"
+    },
+    {
+        title:"Department",
+        key:"department",
+        dataIndex:"department"
     },
     {
         title:"Current Progress",
@@ -70,7 +76,7 @@ function PreviewUser({user}){
 
 
 export default function ManageUsers(){
-
+    const [isOpen,setIsOpen] = useState(false);
 
 
     return (
@@ -104,7 +110,7 @@ export default function ManageUsers(){
                         <UploadOutlined style={{fontSize:20}}/>
                         Upload via xls
                     </Button>
-                    <Button type="primary">
+                    <Button type="primary" onClick={()=>setIsOpen(true)}>
                         <PlusOutlined/>
                         Add Student
                     </Button>
@@ -128,6 +134,41 @@ export default function ManageUsers(){
                 </div>
                 <DataTable data={USERS} cols={USERS_TABLE_COLUMNS}/>
             </div>
+            <Modal open={isOpen} onCancel={()=>setIsOpen(false)} footer={null} title="Add User">
+                <Form>
+                    <Form.Item>
+                        <Input placeholder="Enter Name"/>
+                    </Form.Item>
+                    <Form.Item>
+                        <Input placeholder="Enter Registration Number"/>
+                    </Form.Item>
+                    <Form.Item rules={[
+                        {
+                            type:"email",
+                        }
+                    ]}>
+                        <Input placeholder="Enter Email"/>
+                    </Form.Item>
+                    <Form.Item>
+                        <Input placeholder="Enter Phone"/>
+                    </Form.Item>
+                    <Form.Item>
+                        <Input placeholder="Enter Address"/>
+                    </Form.Item>
+                    {/* NOTE: this Will Eventually be Select dropdown */}
+                    <Form.Item>
+                        <Input placeholder="Enter Enter Department"/>
+                    </Form.Item>
+                    <Form.Item wrapperCol={{
+                                span:8,
+                                offset:20
+                              }}>
+                        <Button type="primary" style={{backgroundColor:"green"}}>
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </>
     )
 }

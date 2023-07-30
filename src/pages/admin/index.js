@@ -92,7 +92,7 @@ export default function AdminOverview(){
                         </Link>
                     </Col>
                     <Col span={8} style={{height:"100%"}}>
-                        <Link to="/admin/dashboard/taxes">
+                        <Link to="/admin/settings/forms">
                             <div style={{
                             backgroundColor:'green',
                             height:"100%",
@@ -118,7 +118,7 @@ export default function AdminOverview(){
                         </Link>
                     </Col>
                     <Col span={8} style={{height:"100%"}}>
-                        <Link to="/admin/dashboard/payments">
+                        <Link to="/admin/settings/stages">
                             <div style={{
                             backgroundColor:'gray',
                             height:"100%",

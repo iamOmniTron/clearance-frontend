@@ -1,15 +1,19 @@
-import {Avatar,Button,Checkbox,Form,Input,message} from "antd";
+import {Avatar,Button,Checkbox,Form,Input,message,Typography} from "antd";
 import Logo from "../../assets/logo.png"
 import { useRef, useState } from "react";
 import { USERS } from "../../DB/users";
 import { extractValueFromInputRef } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
+import { userStore } from "../../store/userStore";
+
+const {Title} = Typography;
 
 
 export default function LoginUser(){
     const [loading,setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const setUser = userStore(state=>state.setUser);
 
 
     const regnumRef = useRef(null);
@@ -28,6 +32,7 @@ export default function LoginUser(){
             setLoading(false);
             return message.error("Invalid Reg. Number/ Password");
         } 
+        setUser(match);
         navigate("/student")
         message.success("Login successful")
         setLoading(false)
@@ -45,8 +50,8 @@ export default function LoginUser(){
             }}>
                 <div style={{
                     background:"white",
-                    height:"40vh",
-                    width:"40vh",
+                    height:"50vh",
+                    width:"30vw",
                     display:"flex",
                     justifyContent:"center",
                     flexDirection:"column",
@@ -54,8 +59,9 @@ export default function LoginUser(){
                     boxShadow:"-1px 4px 6px 0px rgba(0,0,0,0.75)",
                     padding:"1em"
                 }}>
-                    <div style={{height:"30%"}}>
+                    <div style={{height:"35%",textAlign:"center"}}>
                         <Avatar size={60} src={<img src={Logo} alt="school logo"/>}/>
+                        <Title level={4}>Student Login</Title>
                     </div>
                     <Form style={{flex:1,width:"100%"}}>
                         <Form.Item>

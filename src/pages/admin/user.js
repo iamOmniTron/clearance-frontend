@@ -4,6 +4,7 @@ import {DownloadOutlined} from "@ant-design/icons"
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
+import { BiEdit } from "react-icons/bi";
 
 
 const {Title} = Typography;
@@ -12,9 +13,7 @@ const {Title} = Typography;
 
 
 export default function SingleUser(){
-    const {state} = useLocation();
-    console.log("state",state)
-    const {user} = state;
+    const {state:user} = useLocation();
     const navigate = useNavigate();
 
     useEffect(()=>{
@@ -75,12 +74,33 @@ export default function SingleUser(){
                         </Button>
                     </div>
                 </div>
-                <div style={{marginTop:"2em"}}>
-                    <Descriptions>
-                        <Descriptions.Item>
-                            
+                <div style={{marginTop:"2em",boxShadow:"3px 8px 17px 0px rgba(0,0,0,0.75)",padding:"1em",borderRadius:"2px"}}>
+                    <Descriptions column={1}>
+                        <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Fullname">
+                            <b>{user.name}</b>
+                        </Descriptions.Item>
+                        <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Registration Number">
+                            <b>{user.registrationNumber}</b>
+                        </Descriptions.Item>
+                        <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Department">
+                            <b>{user.department}</b>
+                        </Descriptions.Item>
+                        <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Phone Number">
+                            <b>{user.phone}</b>
+                        </Descriptions.Item>
+                        <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="E-Mail">
+                            <b>{user.email}</b>
+                        </Descriptions.Item>
+                        <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Current Stage">
+                            <b>{user.status}</b>
                         </Descriptions.Item>
                     </Descriptions>
+                    <div style={{display:"flex",justifyContent:"flex-end"}}>
+                        <Button type="primary">
+                            <BiEdit style={{fontSize:20}}/>
+                            Edit User
+                        </Button>
+                    </div>
                 </div>
             </div>
         </>

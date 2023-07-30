@@ -36,6 +36,7 @@ export default function IndexPage(){
     const inputRef = useRef(null);
 
 
+    // NOTE: The Timeout is to simulate an API request
     const handleSearch = ()=>{
         setLoading(true);
         setTimeout(()=>{
@@ -44,7 +45,7 @@ export default function IndexPage(){
             setResults(response !== null ?[response] : []);
             console.log(response !== null ?[response] : []);
             setLoading(false);
-        },[getRandomNumber(100,1000)])
+        },getRandomNumber(100,1000))
     }
 
     const loadingIndicator = (
@@ -86,7 +87,7 @@ export default function IndexPage(){
                         <Avatar shape="square" size={60}  src={<img src={Logo} alt="school logo"/>}/>
                         <div style={{alignSelf:"end"}}>
                             <Title level={4} style={{color:"white"}}>
-                                POST-GRADUATES CLEARANCE PORTAL
+                                SCHOOL OF POST-GRADUATES PORTAL
                             </Title>
                         </div>
                     </div>
@@ -126,7 +127,7 @@ export default function IndexPage(){
                             }}>
                                 <Marquee autoFill speed={40} pauseOnClick pauseOnHover delay={1}>
                                     <div style={{backgroundColor:"white",height:"8vh",padding:"1em",width:"100%"}}>
-                                        <Title style={{color:"red",}} level={4}>ENTER YOUR DETAILS TO SEARCH FOR YOUR DETAILS, PROCEED TO CLEARANCE IF FOUND!!!</Title>
+                                        <Title style={{color:"red",}} level={4}>ENTER YOUR DETAILS TO SEARCH FOR YOUR DETAILS, PROCEED TO CLEARANCE IF FOUND...</Title>
                                     </div>
                                 </Marquee>
                                 <div style={{
@@ -134,7 +135,7 @@ export default function IndexPage(){
                                     width:"20%",
                                     textAlign:"center"
                                 }}>
-                                    <Input.Search onMouseEnter={()=>{setResults([]);setShowRes(false)}} size="large" ref={inputRef} onSearch={handleSearch} allowClear placeholder="Enter your Reg. Number"/>
+                                    <Input.Search onMouseEnter={()=>{setResults([]);setShowRes(false)}} size="large" ref={inputRef} onSearch={handleSearch} allowClear placeholder="Enter your Reg. Number to Search..."/>
                                 </div>
                                 {
                                     showRes &&
@@ -153,6 +154,9 @@ export default function IndexPage(){
                                                 <Descriptions.Item label="Registration Number">
                                                     {results[0].registrationNumber}
                                                 </Descriptions.Item>
+                                                <Descriptions.Item label="Department">
+                                                    {results[0].department}
+                                                </Descriptions.Item>
                                                 <Descriptions.Item label="E-mail">
                                                     {results[0].email}
                                                 </Descriptions.Item>
@@ -160,7 +164,7 @@ export default function IndexPage(){
                                                     {results[0].phone}
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label="Current status">
-                                                   <Tag color="green">{results[0].status}</Tag>
+                                                   <Tag color="green">{results[0].status.label}</Tag>
                                                 </Descriptions.Item>
                                             </Descriptions>
                                         </div>
