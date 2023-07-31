@@ -12,6 +12,8 @@ import StagesPage from "./pages/admin/stages";
 import AdminLogin from "./pages/admin/login";
 import UserProfile from "./pages/user/profile";
 import UserOverview from "./pages/user";
+import DocumentsPage from "./pages/admin/documents";
+import Facility from "./pages/user/components/facility";
 
 
 
@@ -27,6 +29,7 @@ function App() {
           <Route path="/student" element={<UserDashboard/>}>
             <Route path="" index element={<UserOverview/>}/>
             <Route path="profile" element={<UserProfile/>}/>
+            <Route path="facility" element={<Facility/>}/>
           </Route>
           {/* ADMIN ROUTE */}
             <Route path="/admin/login"  element={<AdminLogin/>}/>
@@ -36,6 +39,7 @@ function App() {
             <Route path="users" element={<ManageUsers/>}/>
             <Route path="users/user" element={<SingleUser/>}/>
             <Route path="settings/forms" element={<FormsListPage/>}/>
+            <Route path="settings/document-type" element={<DocumentsPage/>}/>
             <Route path="settings/stages" element={<StagesPage/>}/>
           </Route>
         </Routes>

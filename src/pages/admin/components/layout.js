@@ -5,12 +5,13 @@ import {RxDashboard} from "react-icons/rx";
 import {FaWpforms} from "react-icons/fa";
 import { MenuFoldOutlined,MenuUnfoldOutlined } from "@ant-design/icons";
 import { Link, Outlet } from "react-router-dom";
+import {HiOutlineDocumentText} from "react-icons/hi";
 import {useState} from "react"
 import {AiOutlineSetting} from "react-icons/ai"
 import {FaUsers} from "react-icons/fa";
 import {BsFillCalendar2Fill} from "react-icons/bs";
 import {LuCalendarClock} from "react-icons/lu"
-import {BiSolidHourglass} from "react-icons/bi"
+import {BiSolidHourglass, BiUserCircle} from "react-icons/bi"
 
 
 const {Title} = Typography;
@@ -68,6 +69,13 @@ const USER_DASH_LINKS = [
                 key:"forms",
                 label:<Link to="/admin/settings/forms"><b>Forms</b></Link>,
                 icon:<FaWpforms style={{
+                    fontSize:"2em"
+                }}/>
+            },
+            {
+                key:"documents",
+                label:<Link to="/admin/settings/document-type"><b>Documents</b></Link>,
+                icon:<HiOutlineDocumentText style={{
                     fontSize:"2em"
                 }}/>
             },

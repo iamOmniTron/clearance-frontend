@@ -46,18 +46,6 @@ export default function SingleUser(){
                     User
                 </Breadcrumb.Item>
                 </Breadcrumb>
-                {/* <div>
-                    <Space>
-                    <Button type="primary" style={{backgroundColor:"green"}}>
-                        <UploadOutlined style={{fontSize:20}}/>
-                        Upload via xls
-                    </Button>
-                    <Button type="primary">
-                        <PlusOutlined/>
-                        Add Student
-                    </Button>
-                    </Space>
-                </div> */}
             </div>
             <div style={{
                 height:"100%",

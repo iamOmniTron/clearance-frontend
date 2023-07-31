@@ -1,9 +1,4 @@
 
-
-// export const STAGES = [
-//     "REGISTRATION","CLEARED","AWAITING PROPOSAL","CLEARANCE"
-// ]
-
 import { STAGES } from "./stages"
 
 

@@ -11,9 +11,9 @@ export default function Progress({userStage,stages}){
                 {
                     stages.map((stage,idx)=>(
                         <div style={{width:"100%",display:"flex",alignItems:"center",gap:"1em",marginBottom:"1em"}} key={idx}>
-                            <div style={{height:"10px",width:"10px",backgroundColor:`${userStage.id > stage.id?"green":userStage.id === stage.id?"orange":"gray"}`}}/>
+                            <div style={{borderRadius:"50%",height:"20px",width:"20px",backgroundColor:`${userStage.id > stage.id?"green":userStage.id === stage.id?"orange":"gray"}`}}/>
                             
-                                <span>{stage.label} {userStage.id === stage.id && "(Current)"}</span>
+                                <span>{stage.name} {userStage.id === stage.id && "(Current)"}</span>
                         </div>
                     ))
                 }

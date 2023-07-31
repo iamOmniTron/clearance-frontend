@@ -1,12 +1,14 @@
-import { Layout,Menu,Button, Avatar } from "antd"
+import { Layout,Menu,Button, Avatar, message } from "antd"
 import Logo from "../../../assets/logo.png"
 import {RxDashboard} from "react-icons/rx";
-import {ImPaypal} from "react-icons/im";
 import { MenuFoldOutlined,MenuUnfoldOutlined } from "@ant-design/icons";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import {useState} from "react"
-import {BiHistory} from "react-icons/bi"
+import {BiSync} from "react-icons/bi"
+import {AiOutlineLogout} from "react-icons/ai"
 import {FaUser, FaUserCog} from "react-icons/fa"
+import {PiUserSwitch} from "react-icons/pi"
+import { userStore } from "../../../store/userStore";
 
 
 
@@ -33,7 +35,23 @@ const USER_DASH_LINKS = [
                 }}/>
             }
         ]
-    }
+    },
+    {
+        key:"process",
+        label:<b>Facility</b>,
+        icon:<PiUserSwitch style={{
+            fontSize:"2em"
+        }}/>,
+        children:[
+            {
+                key:"profile",
+                label:<Link to="/student/facility"><b>Process</b></Link>,
+                icon:<BiSync style={{
+                    fontSize:"2em"
+                }}/>
+            }
+        ]
+    },
 ]
 
 const {Header,Sider,Content} = Layout;
@@ -42,6 +60,16 @@ const {Header,Sider,Content} = Layout;
 
 export default function UserDashboardLayout(){
     const [isClosed,setIsClosed] = useState(false);
+
+    const navigate = useNavigate();
+
+    const logout = userStore(state=>state.logout);
+
+    const handleLogout = ()=>{
+        logout();
+        navigate("/");
+        message.success("User Logged out successfully...")
+    }
 
     return(
         <>
@@ -79,7 +107,10 @@ export default function UserDashboardLayout(){
                     }}>
                     <Header style={{
                         padding:0,
-                        backgroundColor:"white"
+                        backgroundColor:"white",
+                        display:"flex",
+                        justifyContent:"space-between",
+                        alignItems:"center"
                     }}>
                         <Button
                             type="text"
@@ -91,6 +122,9 @@ export default function UserDashboardLayout(){
                             height: 64,
                             }}
                         />
+                        <Button type="text" style={{marginRight:"2em"}} onClick={handleLogout }>
+                            <AiOutlineLogout style={{color:"gray",fontSize:30}}/>
+                        </Button>
                     </Header>
                     <Content 
                         style={{

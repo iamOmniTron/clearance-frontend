@@ -1,4 +1,5 @@
 import { FORMS } from "./forms"
+import { DOCUMENTS } from "./documentTypes"
 
 
 
@@ -11,7 +12,8 @@ export const STAGES = [
         label:"ADMISSION",
         isForm:true,
         isUpload:false,
-        formType:FORMS[0]
+        formType:FORMS[0],
+        documentType:DOCUMENTS[0]
     },
     {
         id:2,
@@ -21,17 +23,19 @@ export const STAGES = [
         label:"CLEARANCE",
         isForm:false,
         isUpload:true,
-        formType:null
+        formType:null,
+        documentType:DOCUMENTS[2]
     },
     {
         id:3,
-        name:"cleared",
+        name:"Cleared",
         isIndex:false,
         prerequisiteStage:2,
         label:"CLEARED",
         isForm:false,
         isUpload:true,
-        formType:null
+        formType:null,
+        documentType:DOCUMENTS[3]
     },
     {
         id:4,
@@ -41,16 +45,18 @@ export const STAGES = [
         label:"AWAITING PROPOSAL",
         isForm:false,
         isUpload:true,
-        formType:null
+        formType:null,
+        documentType:DOCUMENTS[1]
     },
     {
         id:5,
-        name:"done",
+        name:"Done",
         isIndex:false,
         prerequisiteStage:4,
         label:"DONE",
         isForm:false,
         isUpload:false,
-        formType:null
+        formType:null,
+        documentType:null
     },
 ]
