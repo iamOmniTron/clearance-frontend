@@ -41,7 +41,7 @@ const USERS_TABLE_COLUMNS = [
         title:"Current Progress",
         dataIndex:"status",
         key:"status",
-        render:(status)=><Tag color="green">{status}</Tag>
+        render:(status)=><Tag color="green">{status.label}</Tag>
     },
     {
         title:"Actions",

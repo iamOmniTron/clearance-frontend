@@ -17,7 +17,7 @@ export default function SingleUser(){
     const navigate = useNavigate();
 
     useEffect(()=>{
-        !user || user == null || Object.keys(user).length <1 && navigate(-1)
+        (!user || user == null || Object.keys(user).length <1) && navigate(-1)
     },[])
 
 
@@ -92,7 +92,7 @@ export default function SingleUser(){
                             <b>{user.email}</b>
                         </Descriptions.Item>
                         <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Current Stage">
-                            <b>{user.status}</b>
+                            <b>{user.status.label}</b>
                         </Descriptions.Item>
                     </Descriptions>
                     <div style={{display:"flex",justifyContent:"flex-end"}}>

@@ -33,7 +33,7 @@ const USERS_TABLE_COLUMN = [
         title:"Current Progress",
         dataIndex:"status",
         key:"status",
-        render:(status)=><Tag color="green">{status}</Tag>
+        render:(status)=><Tag color="green">{status.label}</Tag>
     }
 ]
 

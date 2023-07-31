@@ -3,22 +3,17 @@ import DonutChart from "react-donut-chart";
 
 
 
-export default function UserChart(){
-
-    // convert user stage data 
-    // render it
-
+export default function UserChart({completed,left}){
     return(
-        <DonutChart colors={["red","green","blue"]} data={[
+        <DonutChart colors={["green","red"]} data={[
            {
-      label: 'Status',
-      value: 85,
+      label: 'Done',
+      value: completed,
     },
     {
-      label: '',
-      value: 20,
-      isEmpty: true,
+      label: 'left',
+      value: left,
     },
-        ]} height={300} width={300}/>
+        ]} height={300} width={400}/>
     )
 }
