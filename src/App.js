@@ -14,13 +14,17 @@ import UserProfile from "./pages/user/profile";
 import UserOverview from "./pages/user";
 import DocumentsPage from "./pages/admin/documents";
 import Facility from "./pages/user/components/facility";
+import RefreshContext from "./context/refreshContext";
+import { useState } from "react";
 
 
 
 
 function App() {
+  const [flag,setFlag] = useState(false);
   return (
     <>
+    <RefreshContext.Provider value={{flag,setFlag}}>
       <Router>
         <Routes>
           <Route path="/" element={<IndexPage/>}/>
@@ -44,6 +48,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+    </RefreshContext.Provider>
     </>
   );
 }

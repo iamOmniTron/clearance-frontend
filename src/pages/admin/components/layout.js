@@ -1,10 +1,10 @@
-import { Layout,Menu,Button, Avatar,Typography } from "antd"
+import { Layout,Menu,Button, Avatar,Typography,message } from "antd"
 import {TiMortarBoard} from "react-icons/ti"
 import {MdOutlineAdminPanelSettings} from "react-icons/md"
 import {RxDashboard} from "react-icons/rx";
 import {FaWpforms} from "react-icons/fa";
-import { MenuFoldOutlined,MenuUnfoldOutlined } from "@ant-design/icons";
-import { Link, Outlet } from "react-router-dom";
+import { MenuFoldOutlined,MenuUnfoldOutlined,LogoutOutlined } from "@ant-design/icons";
+import { Link, Outlet,useNavigate } from "react-router-dom";
 import {HiOutlineDocumentText} from "react-icons/hi";
 import {useState} from "react"
 import {AiOutlineSetting} from "react-icons/ai"
@@ -12,6 +12,8 @@ import {FaUsers} from "react-icons/fa";
 import {BsFillCalendar2Fill} from "react-icons/bs";
 import {LuCalendarClock} from "react-icons/lu"
 import {BiSolidHourglass, BiUserCircle} from "react-icons/bi"
+import { userStore } from "../../../store/userStore";
+import { AUTH_TOKEN_NAME } from "../../../utils/defaults";
 
 
 const {Title} = Typography;
@@ -96,6 +98,19 @@ const {Header,Sider,Content} = Layout;
 
 export default function AdminDashboardLayout(){
     const [isClosed,setIsClosed] = useState(false);
+    
+    const user = userStore(state=>state.user);
+    const logout = userStore(state=>state.logout);
+
+
+    const navigate = useNavigate();
+
+    const handleLogout = ()=>{
+        sessionStorage.removeItem(AUTH_TOKEN_NAME);
+        logout();
+        message.success("Admin Logged out successfully");
+        navigate("/");
+    }
 
     return(
         <>
@@ -133,8 +148,12 @@ export default function AdminDashboardLayout(){
                     }}>
                     <Header style={{
                         padding:0,
-                        backgroundColor:"white"
+                        backgroundColor:"white",
+                        display:"flex",
+                        justifyContent:"space-between",
+                        alignItems:"center"
                     }}>
+                         <div>
                         <Button
                             type="text"
                             icon={isClosed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -145,7 +164,13 @@ export default function AdminDashboardLayout(){
                             height: 64,
                             }}
                         />
-                       <span style={{fontWeight:"bold",fontSize:"2em"}}>ADMINISTRATOR</span>
+                       <span style={{fontWeight:"bold",fontSize:"2em"}}>{(user.userId).toUpperCase()}</span>
+                        </div>
+                         <Button onClick={handleLogout} type="text">
+                            <LogoutOutlined style={{
+                                fontSize:20
+                            }}/>
+                        </Button>
                     </Header>
                     <Content 
                         style={{

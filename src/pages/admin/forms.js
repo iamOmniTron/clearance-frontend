@@ -1,15 +1,17 @@
-import { Breadcrumb,Space,Button, Typography, Modal, Form ,Input} from "antd"
+import { Breadcrumb,Space,Button, Typography, Modal, Form ,Input, Spin, message,Table} from "antd"
 import { RxDashboard } from "react-icons/rx"
 import {FaWpforms} from "react-icons/fa";
 import { EyeOutlined, PlusOutlined,MinusCircleOutlined } from "@ant-design/icons";
-import { FORMS } from "../../DB/forms";
 import DataTable from "../../components/datatable";
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { BiTrash } from "react-icons/bi";
+import RefreshContext from "../../context/refreshContext";
+import { useCreateFormConfig, useDeleteFormConfig, useFormConfig } from "../../hooks/configQuery";
+import { extractValueFromInputRef } from "../../utils/helpers";
 
 
 
-const {Title} = Typography
+const {Title} = Typography;
 
 
 const FORM_COLUMNS = [
@@ -32,7 +34,7 @@ const FORM_COLUMNS = [
         title:"Total Fields",
         key:"totalFiels",
         dataIndex:"fields",
-        render:(fields)=>fields.length
+        render:(fields)=>JSON.parse(fields).length
     },
     {
         title:"Actions",
@@ -41,18 +43,47 @@ const FORM_COLUMNS = [
     }
 ]
 
+const FORM_FIELDS_COLUMNS = [
+    {
+        title:"S/N",
+        key:"s/n",
+        render:(_,__,idx)=>idx+1
+    },
+    {
+        title:"Name",
+        key:"name",
+        dataIndex:"name"
+    },
+    {
+        title:"Placeholder",
+        key:"placeholder",
+        dataIndex:"placeholder"
+    }
+]
+
 // NOTE: To avoid conflict with Native HTML form element, indexedForm is used
 function FormPreview({indexedForm}){
     const [isOpened,setIsOpened] = useState(false);
+    const fields = JSON.parse(indexedForm.fields)
+
+    const {flag,setFlag} = useContext(RefreshContext);
+
+    const deleteForm = useDeleteFormConfig();
+
+    const deleteFormConfig = async ()=>{
+        await deleteForm(indexedForm.id);
+        message.success("Form deleted successfully");
+        setFlag(!flag)
+    }
 
 
     function createDynamicForm(){
         const formItems = [];
         
-        indexedForm.fields.forEach((field,idx)=>{
+        fields.forEach((field,idx)=>{
             formItems.push(
                 <Form.Item key={idx} name={field.name}>
-                    <Input placeholder={field.info}/>
+                    <Input placeholder={field.placeholder}/>
                 </Form.Item>
             )
         });
@@ -69,7 +100,7 @@ function FormPreview({indexedForm}){
                 <Button type="primary" style={{backgroundColor:"green"}} onClick={()=>setIsOpened(true)}>
                     <EyeOutlined style={{fontSize:20}}/>
                 </Button>
-                <Button type="primary" danger>
+                <Button type="primary" danger onClick={deleteFormConfig}>
                     <BiTrash style={{fontSize:20}}/>
                 </Button>
             </Space>
@@ -91,9 +122,40 @@ function FormPreview({indexedForm}){
 }
 
 
-
 export default function FormsListPage(){
     const [isOpen,setIsOpen] = useState(false);
+    const {flag,setFlag} = useContext(RefreshContext);
+    const [curr,setCurr] = useState({});
+    const [fields,setFields]= useState([]);
+
+    const {loading,formConfigs} = useFormConfig(flag);
+    const createFormConfig = useCreateFormConfig();
+
+    const [form] = Form.useForm();
+
+    const nameRef = useRef(null);
+    const titleRef = useRef(null);
+    function addField(cb1,cb2){
+        setFields(f=>[...f,{...curr}]);
+        setCurr({});
+        cb1();
+        cb2();
+    }
+
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            name:extractValueFromInputRef(nameRef),
+            title:extractValueFromInputRef(titleRef),
+            fields:JSON.stringify(fields)
+        }
+        await createFormConfig(payload);
+        message.success("Form Config created successfully");
+        form.resetFields();
+        setIsOpen(false);
+        setFlag(!flag);
+    }
+
     return(
         <>
             <div style={{
@@ -138,16 +200,25 @@ export default function FormsListPage(){
                        ALL FORMS
                     </Title>
                 </div>
-                <DataTable data={FORMS} cols={FORM_COLUMNS}/>
+                <Spin spinning={loading}>
+                    <DataTable data={formConfigs} cols={FORM_COLUMNS}/>
+                </Spin>
             </div>
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} title="Create New Form" footer={null}>
-                <Form>
+                <Form form={form}>
                     <Form.Item>
-                        <Input placeholder="Enter Form name"/>
+                        <Input ref={nameRef} placeholder="Enter Form name"/>
                     </Form.Item>
                     <Form.Item>
-                        <Input placeholder="Enter Form Title"/>
+                        <Input ref={titleRef} placeholder="Enter Form Title"/>
                     </Form.Item>
+                    {
+                        fields.length > 0 &&       
+                    <Form.Item>
+                        <span>Form</span>
+                        <Table pagination={{pageSize: 20,hideOnSinglePage:true}} rowKey={(r)=>r.name} dataSource={fields} columns={FORM_FIELDS_COLUMNS}/>
+                    </Form.Item>
+                    }
                     <span style={{fontWeight:"bold"}}>Fields:</span>
                     <Form.List name="form-fields">
                         {(fields, { add, remove }) => (
@@ -171,7 +242,7 @@ export default function FormsListPage(){
                                         },
                                         ]}
                                     >
-                                        <Input placeholder="Enter Name for field" />
+                                        <Input placeholder="Enter Name for field" onChange={(e)=>setCurr((c)=>({...c,name:e.target.value}))} />
                                     </Form.Item>
                                     <Form.Item
                                         {...restField}
@@ -183,10 +254,10 @@ export default function FormsListPage(){
                                         },
                                         ]}
                                     >
-                                        <Input placeholder="Enter Placeholder for field" />
+                                        <Input placeholder="Enter Placeholder for field" onChange={(e)=>setCurr((c)=>({...c,placeholder:e.target.value}))}/>
                                     </Form.Item>
                                     <MinusCircleOutlined onClick={() => remove(name)} />
-                                    <Button type="primary" style={{backgroundColor:"green"}}>
+                                    <Button type="primary" style={{backgroundColor:"green"}} onClick={()=>addField(()=>add(),()=>remove(name))}>
                                         Add Item
                                     </Button>
                                     </Space>
@@ -199,11 +270,14 @@ export default function FormsListPage(){
                         </>
                     )}
                     </Form.List>
+                    <div style={{fontWeight:"bold"}}>
+                        Fields Count: {fields.length}
+                    </div>
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary">
+                        <Button type="primary" onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Form.Item>

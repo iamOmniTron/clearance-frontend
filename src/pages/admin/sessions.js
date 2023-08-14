@@ -1,11 +1,14 @@
-import { useState } from "react"
-import { Breadcrumb,Button,Typography,Spin, DatePicker,Form,Input,Modal, Tag, Select,Space } from "antd";
+import { useContext, useRef, useState } from "react"
+import { Breadcrumb,Button,Typography,Spin, DatePicker,Form,Input,Modal, Tag, Select,Space, message } from "antd";
 import { RxDashboard } from "react-icons/rx";
 import {BsFillCalendar2Fill} from "react-icons/bs";
 import {PlusOutlined} from "@ant-design/icons"
 import { SESSIONS } from "../../DB/sessions";
 import { BiEdit,BiTrash } from "react-icons/bi";
 import DataTable from "../../components/datatable";
+import { useCreateSession, useDeleteSession, useSessions, useUpdateSession } from "../../hooks/sessionsQuery";
+import { extractValueFromInputRef } from "../../utils/helpers";
+import RefreshContext from "../../context/refreshContext";
 
 
 const {Title} = Typography;
@@ -44,6 +47,35 @@ const SESSION_COLUMNS = [
 
 function SessionEdit({session}){
     const [isOpen,setIsOpen] = useState(false);
+    const [status,setStatus] = useState(session.active);
+    const [year,setYear] = useState(session.value)
+
+    const {flag,setFlag} = useContext(RefreshContext);
+
+
+    const deleteSession = useDeleteSession();
+    const updateSession = useUpdateSession();
+
+    const titleRef = useRef(null);
+
+
+    const handleDeleteSession = async ()=>{
+        await deleteSession(session.id);
+        message.success("Session deleted successfully");
+        setFlag(!flag)
+    }
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            title:extractValueFromInputRef(titleRef),
+            value:year,
+            active:status
+        }
+        await updateSession(session.id,payload);
+        message.success("Session Updated successfully");
+        setFlag(!flag);
+        setIsOpen(false);
+    }
 
     return(
         <>
@@ -51,7 +83,7 @@ function SessionEdit({session}){
                 <Button type="primary" onClick={()=>setIsOpen(true)}>
                     <BiEdit style={{fontSize:20}}/>
                 </Button>
-                <Button type="primary" danger>
+                <Button type="primary" danger onClick={handleDeleteSession}>
                     <BiTrash style={{fontSize:20}}/>
                 </Button>
             </Space>
@@ -59,22 +91,22 @@ function SessionEdit({session}){
                 <div>
                 <Form initialValues={{...session}}>
                         <Form.Item name="title">
-                            <Input placeholder="Enter Size Title"/>
+                            <Input ref={titleRef} placeholder="Enter Size Title"/>
                         </Form.Item>
                         <Form.Item>
-                            <DatePicker style={{width:"100%"}} picker="year"/>
+                            <DatePicker style={{width:"100%"}} picker="year" onChange={(_,e)=>setYear(e)}/>
                         </Form.Item>
-                        <Form.Item>
-                            <Select placeholder="select status">
-                                <Option>ACTIVE</Option>
-                                <Option>NOT ACTIVE</Option>
+                        <Form.Item name="active">
+                            <Select placeholder="select status" onChange={(e)=>setStatus(e)}>
+                                <Option key={1} value={true}>ACTIVE</Option>
+                                <Option key={2} value={false}>NOT ACTIVE</Option>
                             </Select>
                         </Form.Item>
                         <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                            <Button type="primary" style={{backgroundColor:"green"}}>
+                            <Button type="primary" style={{backgroundColor:"green"}} onClick={handleSubmit}>
                                 Update
                             </Button>
                         </Form.Item>
@@ -89,6 +121,30 @@ function SessionEdit({session}){
 
 export default function ManageSessions(){
     const [isOpen,setIsOpen] = useState(false);
+    const [status,setStatus] = useState(false);
+    const [year,setYear] = useState("");
+
+
+    const {flag,setFlag} = useContext(RefreshContext);
+
+
+    const titleRef = useRef(null)
+
+
+    const {loading,sessions} = useSessions(flag);
+    const createSession = useCreateSession();
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            title:extractValueFromInputRef(titleRef),
+            value:year,
+            active:status
+        }
+        await createSession(payload);
+        message.success("Session Created successfully");
+        setIsOpen(false);
+        setFlag(!flag);
+    } 
 
     return(
         <>
@@ -130,30 +186,30 @@ export default function ManageSessions(){
                         ALL SESSIONS
                     </Title>
                 </div>
-                <Spin spinning={false}>
-                    <DataTable cols={SESSION_COLUMNS} data={SESSIONS} />
+                <Spin spinning={loading}>
+                    <DataTable cols={SESSION_COLUMNS} data={sessions} />
                 </Spin>
             </div>
             <Modal title="Create Session" footer={null} open={isOpen} onCancel={()=>setIsOpen(false)}>
                 <div>
                     <Form>
                         <Form.Item>
-                            <Input placeholder="Enter Session Title"/>
+                            <Input ref={titleRef} placeholder="Enter Session Title"/>
                         </Form.Item>
                         <Form.Item>
-                            <DatePicker placeholder="Select Year" picker="year" style={{width:"100%"}}/>
+                            <DatePicker placeholder="Select Year" picker="year" style={{width:"100%"}} onChange={(_,e)=>setYear(e)}/>
                         </Form.Item>
                         <Form.Item>
-                            <Select placeholder="select status">
-                                <Option>ACTIVE</Option>
-                                <Option>NOT ACTIVE</Option>
+                            <Select placeholder="select status" onChange={(e)=>setStatus(e)}>
+                                <Option key={1} value={true}>ACTIVE</Option>
+                                <Option key={2} value={false}>NOT ACTIVE</Option>
                             </Select>
                         </Form.Item>
                         <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                            <Button type="primary" style={{backgroundColor:"green"}}>
+                            <Button type="primary" style={{backgroundColor:"green"}} onClick={handleSubmit}>
                                 Create
                             </Button>
                         </Form.Item>

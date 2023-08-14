@@ -20,15 +20,12 @@ export default function UserOverview(){
 
     const goToFacility = ()=> navigate("/student/facility")
         
-    // convert user stage data 
-    // render it
     const currentuser = userStore(state=>state.user);
 
     const userStage = currentuser.status;
     
     const completedPercentage = ((userStage.id * 100)/STAGES.length)
     const remaining = (100 - completedPercentage);
-    console.log(remaining)
 
     return(
         <>

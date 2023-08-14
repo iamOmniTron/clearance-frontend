@@ -4,6 +4,7 @@ import { RxDashboard } from "react-icons/rx";
 import { Link }  from "react-router-dom";
 import DataTable from "../../components/datatable";
 import { USERS } from "../../DB/users";
+import { useUsers } from "../../hooks/userQuery";
 
 const {Title} = Typography;
 
@@ -16,7 +17,7 @@ const USERS_TABLE_COLUMN = [
     },
     {
         title:"Fullname",
-        dataIndex:"name",
+        dataIndex:"fullname",
         key:"name"
     },
     {
@@ -31,7 +32,7 @@ const USERS_TABLE_COLUMN = [
     },
     {
         title:"Current Progress",
-        dataIndex:"status",
+        dataIndex:"Stage",
         key:"status",
         render:(status)=><Tag color="green">{status.label}</Tag>
     }
@@ -39,6 +40,8 @@ const USERS_TABLE_COLUMN = [
 
 
 export default function AdminOverview(){
+
+    const {users} = useUsers();
 
     return(
         <>
@@ -154,7 +157,7 @@ export default function AdminOverview(){
                 <div style={{
                 marginTop:"2em"
                 }}>
-                <DataTable data={USERS} cols={USERS_TABLE_COLUMN}/>
+                <DataTable data={users} cols={USERS_TABLE_COLUMN}/>
             </div>
             </div>
         </>

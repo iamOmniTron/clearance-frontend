@@ -39,7 +39,7 @@ export const USERS = [
         email:"sakinaabdallahm@gmail.com",
         department:"Computer Science",
         phone:"07082334422",
-        status:STAGES[2],
+        status:STAGES[4],
         password:"12345678"
     },
     {

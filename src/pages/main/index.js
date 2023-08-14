@@ -4,9 +4,10 @@ import Background from "../../assets/bg.jpg"
 import Marquee from "react-fast-marquee";
 import { useRef, useState } from "react";
 import { USERS } from "../../DB/users";
-import { getRandomNumber } from "../../utils/helpers";
+import { extractValueFromInputRef, getRandomNumber } from "../../utils/helpers";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useGetUser } from "../../hooks/userQuery";
 
 
 const {Title} = Typography;
@@ -26,6 +27,7 @@ const findUser = (regNumber)=>{
 export default function IndexPage(){
     const [loading,setLoading] = useState(false);
     const [results,setResults] = useState([]);
+    const [res,setRes] = useState({});
     const [showRes,setShowRes] = useState(false);
 
     const navigate = useNavigate();
@@ -35,17 +37,24 @@ export default function IndexPage(){
 
     const inputRef = useRef(null);
 
+    const getUser = useGetUser();
+
 
     // NOTE: The Timeout is to simulate an API request
-    const handleSearch = ()=>{
+    const handleSearch = async()=>{
         setLoading(true);
-        setTimeout(()=>{
-            const response = findUser(inputRef.current.input.value) ?? null;
+        const response = await getUser(extractValueFromInputRef(inputRef));
+        if(!response){
+            setRes({});
+            setLoading(false)
             setShowRes(true)
-            setResults(response !== null ?[response] : []);
-            console.log(response !== null ?[response] : []);
-            setLoading(false);
-        },getRandomNumber(100,1000))
+            return;
+        }
+        const {password,...userData} = response;
+        setRes(userData);
+        console.log(userData);
+        setLoading(false);
+        setShowRes(true)
     }
 
     const loadingIndicator = (
@@ -135,36 +144,39 @@ export default function IndexPage(){
                                     width:"20%",
                                     textAlign:"center"
                                 }}>
-                                    <Input.Search onMouseEnter={()=>{setResults([]);setShowRes(false)}} size="large" ref={inputRef} onSearch={handleSearch} allowClear placeholder="Enter your Reg. Number to Search..."/>
+                                    <Input.Search onMouseEnter={()=>{setRes({});setShowRes(false)}} size="large" ref={inputRef} onSearch={handleSearch} allowClear placeholder="Enter your Reg. Number to Search..."/>
                                 </div>
                                 {
                                     showRes &&
-                                <div style={{padding:"2em 0"}}>
-                                    <Title level={3} style={{color:"blue"}}>{results?.length} Results found!</Title>
+                                <div style={{padding:"1em 0"}}>
+                                    <Title level={3} style={{color:"blue"}}>{Object.keys(res).length > 0?"1":"No"} Results found!</Title>
                                 </div>
                                 }
                                     <Spin spinning={loading} indicator={loadingIndicator} style={{margin:"2em 0"}}>
                                         {
-                                            results.length >0 && 
-                                        <div style={{paddingLeft:"2em",borderRadius:"2px",height:"40vh",width:"30vw",background:"white",marginTop:"2em",display:"flex",justifyContent:"center",alignItems:"center"}}>
+                                            Object.keys(res).length >0 && 
+                                        <div style={{paddingLeft:"2em",borderRadius:"2px",minHeight:"45vh",width:"30vw",background:"white",marginTop:"2em",display:"flex",justifyContent:"center",alignItems:"center",paddingTop:"2em"}}>
                                             <Descriptions column={1} title="Student Information">
                                                 <Descriptions.Item label="Full name">
-                                                    {results[0].name}
+                                                    {res?.fullname}
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label="Registration Number">
-                                                    {results[0].registrationNumber}
+                                                    {res?.registrationNumber}
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label="Department">
-                                                    {results[0].department}
+                                                    {res?.department}
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label="E-mail">
-                                                    {results[0].email}
+                                                    {res?.email}
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label="Phone">
-                                                    {results[0].phone}
+                                                    {res?.phone}
                                                 </Descriptions.Item>
                                                 <Descriptions.Item label="Current status">
-                                                   <Tag color="green">{results[0].status.label}</Tag>
+                                                   <Tag color="green">{res?.Stage.label}</Tag>
+                                                </Descriptions.Item>
+                                                <Descriptions.Item label="Session">
+                                                   <Tag color="green">{res?.Session.value}</Tag>
                                                 </Descriptions.Item>
                                             </Descriptions>
                                         </div>

@@ -1,11 +1,14 @@
-import { Breadcrumb,Space,Button,Modal,Form,Typography, Input, Select } from "antd";
+import { Breadcrumb,Space,Button,Modal,Form,Typography, Input, Select, Spin, message } from "antd";
 import { RxDashboard } from "react-icons/rx";
 import { DOCUMENTS } from "../../DB/documentTypes";
 import DataTable from "../../components/datatable";
 import {HiOutlineDocumentText} from "react-icons/hi";
 import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { BiTrash } from "react-icons/bi";
+import { useCreateDocumentConfig, useDeleteDocumentConfig, useDocumentConfig, useUpdateDocumentConfig } from "../../hooks/configQuery";
+import RefreshContext from "../../context/refreshContext";
+import { extractValueFromInputRef } from "../../utils/helpers";
 
 const {Title} = Typography;
 const {Option} = Select;
@@ -36,11 +39,36 @@ const DOCUMENTS_COLUMNS = [
 ]
 
 
-
-
-
 function DocumentPreview({document}){
     const [isOpen,setIsOpen] = useState(false);
+    const [type,setType] = useState(document.type);
+
+    const [form] = Form.useForm();
+    const {flag,setFlag} = useContext(RefreshContext);
+
+    const nameRef = useRef(null);
+    
+    const updateDocumentConfig = useUpdateDocumentConfig();
+    const deleteDocumentConfig = useDeleteDocumentConfig();
+
+
+    const handleDeleteDocumentConfig = async ()=>{
+        await deleteDocumentConfig(document.id);
+        message.success("Config deleted successfully");
+        setFlag(!flag)
+    }
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            name:extractValueFromInputRef(nameRef),
+            type
+        }
+        await updateDocumentConfig(document.id,payload);
+        message.success("Document Config updated successfully");
+        form.resetFields();
+        setIsOpen(false);
+        setFlag(!flag);
+    }
 
     return(
         <>
@@ -50,28 +78,27 @@ function DocumentPreview({document}){
                         fontSize:20
                     }}/>
                 </Button>
-                <Button type="primary" danger>
+                <Button onClick={handleDeleteDocumentConfig} type="primary" danger>
                     <BiTrash style={{
                         fontSize:20
                     }}/>
                 </Button>
             </Space>
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} title="Update Document Type" footer={null}>
-                <Form initialValues={{...document}}>
+                <Form form={form} initialValues={{...document}}>
                     <Form.Item name="name">
-                        <Input placeholder="Enter Document Name"/>
+                        <Input ref={nameRef} placeholder="Enter Document Name"/>
                     </Form.Item>
                     <Form.Item name="type">
-                        <Select placeholder="Select Document Format">
+                        <Select placeholder="Select Document Format" onChange={(e)=>setType(e)}>
                             <Option value="docx">docx</Option>
-                            <Option value="pdf">pdf</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" style={{backgroundColor:"green"}}>
+                        <Button onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
                             Update
                         </Button>
                     </Form.Item>
@@ -86,8 +113,27 @@ function DocumentPreview({document}){
 
 export default function DocumentsPage(){
     const [isOpen,setIsOpen] = useState(false);
+    const [type,setType] = useState("");
+
+    const [form] = Form.useForm();
+    const {flag,setFlag} = useContext(RefreshContext);
+
+    const nameRef = useRef(null);
 
 
+    const {loading,documentConfigs} = useDocumentConfig(flag);
+    const createDocumentConfig = useCreateDocumentConfig();
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            name:extractValueFromInputRef(nameRef),
+            type
+        }
+        await createDocumentConfig(payload);
+        message.success("Document Config Created successfully");
+        setIsOpen(false);
+        setFlag(!flag);
+    }
 
     return(
         <>
@@ -133,24 +179,25 @@ export default function DocumentsPage(){
                        ALL DOCUMENT TYPES
                     </Title>
                 </div>
-                <DataTable data={DOCUMENTS} cols={DOCUMENTS_COLUMNS }/>
+                <Spin spinning={loading}>
+                <DataTable data={documentConfigs} cols={DOCUMENTS_COLUMNS }/>
+                </Spin>
             </div>
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} title="Create Document Type" footer={null}>
-                <Form>
+                <Form form={form}>
                     <Form.Item>
-                        <Input placeholder="Enter Document Name"/>
+                        <Input ref={nameRef} placeholder="Enter Document Name"/>
                     </Form.Item>
                     <Form.Item>
-                    <Select placeholder="Select Document Format">
+                    <Select placeholder="Select Document Format" onChange={(e)=>setType(e)}>
                         <Option value="docx">docx</Option>
-                        <Option value="pdf">pdf</Option>
                     </Select>
                     </Form.Item>
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" style={{backgroundColor:"green"}}>
+                        <Button onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
                             Submit
                         </Button>
                     </Form.Item>

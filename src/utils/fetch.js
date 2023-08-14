@@ -1,6 +1,7 @@
 import axios from "axios";
 import {message} from "antd";
 import { SERVER_URL,AUTH_TOKEN_NAME } from "./defaults";
+import { serializeObjectToUrlParams } from "./helpers";
 
 export const query = async (endpoint,query)=>{
     const token = sessionStorage.getItem(AUTH_TOKEN_NAME);
@@ -26,7 +27,7 @@ export const mutate = async (endpoint, withCredentials, body, query) => {
     try {
         const token = sessionStorage.getItem(AUTH_TOKEN_NAME);
         const headerPayload = withCredentials ? {
-            withCredentials: true,
+            withCredentials: false,
             headers: {
                 Authorization: `Bearer ${token}`
             }

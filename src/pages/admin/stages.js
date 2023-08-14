@@ -1,11 +1,15 @@
-import { Button,Breadcrumb,Modal,Form,Input,Space, Tag,Typography, Select, Checkbox, Radio } from "antd"
+import { Button,Breadcrumb,Modal,Form,Input,Space,message, Tag,Typography, Select, Checkbox, Radio, Spin } from "antd"
 import { RxDashboard } from "react-icons/rx";
 import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import {BiSolidHourglass, BiTrash} from "react-icons/bi"
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { STAGES } from "../../DB/stages";
 import DataTable from "../../components/datatable";
 import { FORMS } from "../../DB/forms";
+import { useCreateStage, useDeleteStage, useStages, useUpdateStage } from "../../hooks/stages";
+import RefreshContext from "../../context/refreshContext";
+import { useDocumentConfig, useFormConfig } from "../../hooks/configQuery";
+import { extractValueFromInputRef } from "../../utils/helpers";
 
 const {Title} = Typography;
 const {Option} = Select;
@@ -38,7 +42,7 @@ const STAGES_COLUMN = [
         title:"Prerequisite Stage",
         key:"pre-stage",
         dataIndex:"prerequisiteStage",
-        render:(pre,stage)=> stage.isIndex?<Tag color="blue">First Stage</Tag>: STAGES.find(s=>s.id ===pre).name
+        render:(pre,stage)=> stage.isIndex?<Tag color="blue">First Stage</Tag>:pre.name
     },
     {
         title:"Screening Method",
@@ -57,8 +61,61 @@ const STAGES_COLUMN = [
 
 function PreviewStage({stage}){
     const [isOpen,setIsOpen] = useState(false);
-    const [method,setMethod] = useState(stage.isForm?"form":stage.isUpload?"upload":"");
+    const [isIndex,setIsIndex] = useState(stage.isIndex);
+    const [isForm,setIsForm] = useState(stage.isForm);
+    const [isDocumentUpload,setIsDocumentUpload] = useState(stage.isDocumentUpload);
+    const [formType,setFormType] = useState(stage.FormConfigId);
+    const [documentType,setDocumentType] = useState(stage.DocumentConfigId);
+    const [previousStage,setPreviousStage] = useState(stage.prerequisiteStageId);
 
+
+    const {flag,setFlag} = useContext(RefreshContext);
+
+    const {stages} = useStages(flag)
+    const {formConfigs} = useFormConfig();
+    const {documentConfigs} = useDocumentConfig();
+
+    const deleteStage = useDeleteStage();
+    const updateStage = useUpdateStage();
+
+    const nameRef = useRef(null);
+    const labelRef = useRef(null);
+
+    const handleTypeSelect = (e)=>{
+        if(e === "form"){
+            setIsForm(true);
+            setIsDocumentUpload(false);
+            setDocumentType(null)
+        }
+        if(e === "upload"){
+            setIsForm(false);
+            setIsDocumentUpload(true);
+            setFormType(null);
+        }
+    }
+
+    const handleDeleteStage = async ()=>{
+        await deleteStage(stage.id);
+        message.success("Stage Deleted successfully");
+        setFlag(!flag);
+    }
+
+    const handleUpdateStage = async ()=>{
+        const payload = {
+            name:extractValueFromInputRef(nameRef),
+            label:extractValueFromInputRef(labelRef),
+            isIndex,
+            isForm,
+            isUpload:isDocumentUpload,
+            formType,
+            documentType,
+            previousStage
+        }
+        await updateStage(stage.id,payload);
+        message.success("Stage Updated successfully");
+        setIsOpen(false);
+        setFlag(!flag);
+    }
     return(
         <>
             <Space>
@@ -67,7 +124,7 @@ function PreviewStage({stage}){
                         fontSize:20
                     }}/>
                 </Button>
-                <Button type="primary" danger>
+                <Button type="primary" danger onClick={handleDeleteStage}>
                     <BiTrash style={{
                         fontSize:20
                     }}/>
@@ -76,49 +133,61 @@ function PreviewStage({stage}){
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} footer={null} title="Add Stage">
             <Form initialValues={{...stage}}>
                     <Form.Item name="name">
-                        <Input placeholder="Stage Name"/>
+                        <Input ref={nameRef} placeholder="Stage Name"/>
                     </Form.Item>
                     <Form.Item name="label">
-                        <Input placeholder="Stage Label"/>
+                        <Input ref={labelRef} placeholder="Stage Label"/>
                     </Form.Item>
                     <Form.Item name="prerequisiteStage">
-                        <Select placeholder="Select Prerequisite stage">
+                        <Select placeholder="Select Prerequisite stage" onChange={(e)=>setPreviousStage(e)}>
                             {
-                                STAGES.map((s,idx)=>(
+                                (stages.filter(s=>s.id !== stage.id)).map((s,idx)=>(
                                     <Option value={s.id} key={idx}>{s.name}</Option>
                                 ))
                             }
                         </Select>
                     </Form.Item>
                     <Form.Item name="isIndex">
-                        <Checkbox checked={stage.isIndex} disabled={!stage.isIndex && STAGES.length > 0}>
+                        <Checkbox checked={stage.isIndex} onChange={(e)=>e.target.checked?setIsIndex(true):setIsIndex(false)} disabled={!stage.isIndex && (stages.filter(s=>s.id !== stage.id)).length > 0}>
                             Is First Item?
                         </Checkbox>
                     </Form.Item>
                     <span style={{fontWeight:"bold"}}>Screening Method</span>
-                    <Form.Item>
-                        <Radio.Group value={method} onChange={(e)=>setMethod(e.target.value)}>
+                    <Form.Item name="">
+                        <Radio.Group defaultValue={stage.isForm?"form":"upload"} onChange={(e)=>handleTypeSelect(e.target.value)}>
                             <Radio value="form">Form</Radio>
                             <Radio value="upload">Document Upload</Radio>
                         </Radio.Group>
                     </Form.Item>
                     {
-                        method === "form" && 
-                    <Form.Item name="formType">
+                         isForm && 
+                    <Form.Item name="FormConfig">
                         <Select placeholder="Select Form Type">
                             {
-                                FORMS.map((f,idx)=>(
+                                formConfigs.map((f,idx)=>(
                                     <Option key={idx} value={f.id}>{f.name}</Option>
                                 ))
                             }
                         </Select>
                     </Form.Item>
                     }
+                    {
+                        isDocumentUpload && 
+                        <Form.Item name="DocumentConfig">
+                            <Select placeholder="Select Document Type" onChange={(e)=>setDocumentType(e)}>
+                                {
+                                    documentConfigs.map((d,idx)=>(
+                                        <Option key={idx} value={d.id}>{d.name}</Option>
+                                    ))
+                                }
+                            </Select>
+                        </Form.Item>
+                    }
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary">
+                        <Button type="primary" onClick={handleUpdateStage}>
                             Update
                         </Button>
                     </Form.Item>
@@ -132,8 +201,54 @@ function PreviewStage({stage}){
 
 export default function StagesPage(){
     const [isOpen,setIsOpen] = useState(false)
-    const [method,setMethod] = useState("");
+    const [isIndex,setIsIndex] = useState(false);
+    const [isForm,setIsForm] = useState(false);
+    const [isDocumentUpload,setIsDocumentUpload] = useState(false);
+    const [formType,setFormType] = useState(null);
+    const [documentType,setDocumentType] = useState(null);
+    const [previousStage,setPreviousStage] = useState(null);
 
+
+    const nameRef = useRef(null);
+    const labelRef = useRef(null);
+
+    const handleTypeSelect = (e)=>{
+        if(e === "form"){
+            setIsForm(true);
+            setIsDocumentUpload(false);
+            setDocumentType(null)
+        }
+        if(e === "upload"){
+            setIsForm(false);
+            setIsDocumentUpload(true);
+            setFormType(null);
+        }
+    }
+
+    const {flag,setFlag} = useContext(RefreshContext);
+
+    const {loading,stages} = useStages(flag)
+    const {formConfigs} = useFormConfig();
+    const {documentConfigs} = useDocumentConfig();
+    const createStage = useCreateStage()
+
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            name:extractValueFromInputRef(nameRef),
+            label:extractValueFromInputRef(labelRef),
+            isIndex,
+            isForm,
+            isUpload:isDocumentUpload,
+            formType,
+            documentType,
+            previousStage
+        }
+        await createStage(payload);
+        message.success("Stage Created Successfully");
+        setIsOpen(false);
+        setFlag(!flag);
+    }
 
     return(
         <>
@@ -179,54 +294,68 @@ export default function StagesPage(){
                        ALL STAGES
                     </Title>
                 </div>
-                <DataTable data={STAGES} cols={STAGES_COLUMN}/>
+                <Spin spinning={loading}>
+                    <DataTable data={stages} cols={STAGES_COLUMN}/>
+                </Spin>
             </div>
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} footer={null} title="Add Stage">
                 <Form>
                     <Form.Item>
-                        <Input placeholder="Stage Name"/>
+                        <Input ref={nameRef} placeholder="Stage Name"/>
                     </Form.Item>
                     <Form.Item>
-                        <Input placeholder="Stage Label"/>
+                        <Input ref={labelRef} placeholder="Stage Label"/>
                     </Form.Item>
                     <Form.Item>
-                    <Select placeholder="Select Prerequisite stage">
+                    <Select placeholder="Select Prerequisite stage" onChange={(e)=>setPreviousStage(e)}>
                         {
-                            STAGES.map((s,idx)=>(
+                            stages.map((s,idx)=>(
                                 <Option value={s.id} key={idx}>{s.name}</Option>
                             ))
                         }
                     </Select>
                     </Form.Item>
                     <Form.Item>
-                        <Checkbox disabled={STAGES.length >  0}>
+                        <Checkbox checked={isIndex} onChange={(e)=>e.target.checked?setIsIndex(true):setIsIndex(false)} disabled={stages.length >  0}>
                             Is First Item?
                         </Checkbox>
                     </Form.Item>
                     <span style={{fontWeight:"bold"}}>Screening Method</span>
                     <Form.Item>
-                        <Radio.Group onChange={(e)=>setMethod(e.target.value)}>
+                        <Radio.Group onChange={(e)=>handleTypeSelect(e.target.value)}>
                             <Radio value="form">Form</Radio>
                             <Radio value="upload">Document Upload</Radio>
                         </Radio.Group>
                     </Form.Item>
                     {
-                        method === "form" && 
+                        isForm && 
                     <Form.Item>
-                        <Select placeholder="Select Form Type">
+                        <Select placeholder="Select Form Type" onChange={(e)=>setFormType(e)}>
                             {
-                                FORMS.map((f,idx)=>(
+                                formConfigs.map((f,idx)=>(
                                     <Option key={idx} value={f.id}>{f.name}</Option>
                                 ))
                             }
                         </Select>
                     </Form.Item>
                     }
+                    {
+                        isDocumentUpload && 
+                        <Form.Item>
+                            <Select placeholder="Select Document Type" onChange={(e)=>setDocumentType(e)}>
+                                {
+                                    documentConfigs.map((d,idx)=>(
+                                        <Option key={idx} value={d.id}>{d.name}</Option>
+                                    ))
+                                }
+                            </Select>
+                        </Form.Item>
+                    }
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary">
+                        <Button type="primary" onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Form.Item>

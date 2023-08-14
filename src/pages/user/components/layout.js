@@ -44,7 +44,7 @@ const USER_DASH_LINKS = [
         }}/>,
         children:[
             {
-                key:"profile",
+                key:"facility",
                 label:<Link to="/student/facility"><b>Process</b></Link>,
                 icon:<BiSync style={{
                     fontSize:"2em"
@@ -78,7 +78,7 @@ export default function UserDashboardLayout(){
                 display:"flex",
             }}>
                 <Sider width={300} trigger={null} collapsible collapsed={isClosed} style={{
-                    backgroundColor:"yellowgreen",
+                    backgroundColor:"#19870a",
                     display:"flex",
                     flexDirection:"column",
                     height:"100vh",
@@ -93,7 +93,7 @@ export default function UserDashboardLayout(){
                     </div>
                     <Menu
                     style={{
-                        backgroundColor:"yellowgreen",
+                        backgroundColor:"#19870a",
                         color:"white"
                     }}
                         theme="light"

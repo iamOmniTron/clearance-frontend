@@ -1,14 +1,21 @@
-import { Breadcrumb,Typography,Tag, Button,Space, Modal,Input, Form} from "antd";
+import { Breadcrumb,Typography,Tag, Button,Space, Modal,Input, Form, message, Spin, Select} from "antd";
 import { RxDashboard } from "react-icons/rx";
 import DataTable from "../../components/datatable";
 import { FaUsers } from "react-icons/fa";
 import { USERS } from "../../DB/users";
 import {DownloadOutlined,PlusOutlined,UploadOutlined,EyeOutlined} from "@ant-design/icons"
 import { BiTrash } from "react-icons/bi";
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDeleteUser, useRegisterUser, useUsers } from "../../hooks/userQuery";
+import { extractValueFromInputRef } from "../../utils/helpers";
+import RefreshContext from "../../context/refreshContext";
+import { useStages } from "../../hooks/stages";
+import { useSessions } from "../../hooks/sessionsQuery";
 
 const {Title} = Typography;
+
+const {Option} = Select;
 
 
 const USERS_TABLE_COLUMNS = [
@@ -19,7 +26,7 @@ const USERS_TABLE_COLUMNS = [
     },
     {
         title:"Fullname",
-        dataIndex:"name",
+        dataIndex:"fullname",
         key:"name"
     },
     {
@@ -39,9 +46,9 @@ const USERS_TABLE_COLUMNS = [
     },
     {
         title:"Current Progress",
-        dataIndex:"status",
-        key:"status",
-        render:(status)=><Tag color="green">{status.label}</Tag>
+        dataIndex:"Stage",
+        key:"Stage",
+        render:(stage)=><Tag color="green">{stage?.label}</Tag>
     },
     {
         title:"Actions",
@@ -52,8 +59,17 @@ const USERS_TABLE_COLUMNS = [
 
 
 function PreviewUser({user}){
+    const {flag,setFlag} = useContext(RefreshContext);
 
     const navigate = useNavigate();
+
+    const deleteUser = useDeleteUser();
+
+    const handleDeleteUser = async ()=>{
+        await deleteUser(user.id);
+        message.success("User deleted successfully");
+        setFlag(!flag);
+    }
 
     const handleNavigateToUserPreview = ()=>{
         return navigate("/admin/users/user",{state:user})
@@ -62,11 +78,11 @@ function PreviewUser({user}){
 
     return(
         <>
-            <Space>
-                <Button type="primary" onClick={handleNavigateToUserPreview}>
+            <Space wrap>
+                <Button  type="primary" onClick={handleNavigateToUserPreview}>
                     <EyeOutlined style={{fontSize:20}}/>
                 </Button>
-                <Button type="primary" danger>
+                <Button onClick={handleDeleteUser} type="primary" danger>
                     <BiTrash style={{fontSize:20}}/>
                 </Button>
             </Space>
@@ -77,6 +93,37 @@ function PreviewUser({user}){
 
 export default function ManageUsers(){
     const [isOpen,setIsOpen] = useState(false);
+    const [stage,setStage] = useState(null);
+    const [sess,setSess] = useState("");
+    const {flag,setFlag} = useContext(RefreshContext);
+    const {loading,users} = useUsers(flag);
+    const {stages} = useStages();
+    const {sessions} = useSessions();
+    
+    const createUser = useRegisterUser();
+
+    const nameRef = useRef(null);
+    const emailRef = useRef(null)
+    const phoneRef = useRef(null)
+    const departmentRef = useRef(null)
+    const regRef = useRef(null)
+
+
+    const handleSubmit = async ()=>{
+        const payload = {
+            fullname:extractValueFromInputRef(nameRef),
+            email:extractValueFromInputRef(emailRef),
+            phone:extractValueFromInputRef(phoneRef),
+            department:extractValueFromInputRef(departmentRef),
+            registrationNumber:extractValueFromInputRef(regRef),
+            StageId:stage,
+            SessionId:sess
+        }
+        await createUser(payload);
+        message.success("user registered successfully");
+        setIsOpen(false);
+        setFlag(!flag);
+    }
 
 
     return (
@@ -132,38 +179,55 @@ export default function ManageUsers(){
                         </Button>
                     </div>
                 </div>
-                <DataTable data={USERS} cols={USERS_TABLE_COLUMNS}/>
+                <Spin spinning={loading}>
+                 <DataTable data={users} cols={USERS_TABLE_COLUMNS}/>
+                </Spin>
             </div>
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} footer={null} title="Add User">
                 <Form>
                     <Form.Item>
-                        <Input placeholder="Enter Name"/>
+                        <Input ref={nameRef} placeholder="Enter Name"/>
                     </Form.Item>
                     <Form.Item>
-                        <Input placeholder="Enter Registration Number"/>
+                        <Input ref={regRef} placeholder="Enter Registration Number"/>
                     </Form.Item>
                     <Form.Item rules={[
                         {
                             type:"email",
                         }
                     ]}>
-                        <Input placeholder="Enter Email"/>
+                        <Input ref={emailRef} placeholder="Enter Email"/>
                     </Form.Item>
                     <Form.Item>
-                        <Input placeholder="Enter Phone"/>
+                        <Input ref={phoneRef} placeholder="Enter Phone"/>
+                    </Form.Item>
+                    <Form.Item name="Session">
+                        <Select onChange={(e)=>setSess(e)} placeholder="Select Student Session">
+                            {
+                                sessions.map((s,idx)=>(
+                                    <Option value={s.id} key={idx}>{s.title}</Option>
+                                ))
+                            }
+                        </Select>
                     </Form.Item>
                     <Form.Item>
-                        <Input placeholder="Enter Address"/>
+                        <Select onChange={(e)=>setStage(e)} placeholder="Select Student Current Stage">
+                            {
+                                stages.map((s,idx)=>(
+                                    <Option value={s.id} key={idx}>{s.name}</Option>
+                                ))
+                            }
+                        </Select>
                     </Form.Item>
                     {/* NOTE: this Will Eventually be Select dropdown */}
                     <Form.Item>
-                        <Input placeholder="Enter Enter Department"/>
+                        <Input ref={departmentRef} placeholder="Enter Enter Department"/>
                     </Form.Item>
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" style={{backgroundColor:"green"}}>
+                        <Button onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
                             Submit
                         </Button>
                     </Form.Item>
