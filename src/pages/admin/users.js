@@ -119,8 +119,8 @@ export default function ManageUsers(){
             StageId:stage,
             SessionId:sess
         }
-        await createUser(payload);
-        message.success("user registered successfully");
+       const response = await createUser(payload);
+        message.success(response??"user registered successfully");
         setIsOpen(false);
         setFlag(!flag);
     }

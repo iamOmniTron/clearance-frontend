@@ -3,9 +3,7 @@ import { RxDashboard } from "react-icons/rx";
 import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import {BiSolidHourglass, BiTrash} from "react-icons/bi"
 import { useContext, useRef, useState } from "react";
-import { STAGES } from "../../DB/stages";
 import DataTable from "../../components/datatable";
-import { FORMS } from "../../DB/forms";
 import { useCreateStage, useDeleteStage, useStages, useUpdateStage } from "../../hooks/stages";
 import RefreshContext from "../../context/refreshContext";
 import { useDocumentConfig, useFormConfig } from "../../hooks/configQuery";

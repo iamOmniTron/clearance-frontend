@@ -97,7 +97,7 @@ export default function SingleUser(){
                         </Button>
                     </div>
                 </div>
-                <div style={{marginTop:"2em",boxShadow:"3px 8px 17px 0px rgba(0,0,0,0.75)",padding:"1em",borderRadius:"2px"}}>
+                <div style={{marginTop:"2em",boxShadow:"3px 8px 17px 0px rgba(0,0,0,0.75)",padding:"1em 1em 2em 3em",borderRadius:"2px"}}>
                     <Descriptions column={1}>
                         <Descriptions.Item labelStyle={{marginRight:"2em",fontStyle:"italic"}} contentStyle={{marginBottom:"1em"}} label="Fullname">
                             <b>{user.fullname}</b>

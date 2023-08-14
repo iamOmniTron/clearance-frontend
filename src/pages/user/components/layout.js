@@ -9,6 +9,7 @@ import {AiOutlineLogout} from "react-icons/ai"
 import {FaUser, FaUserCog} from "react-icons/fa"
 import {PiUserSwitch} from "react-icons/pi"
 import { userStore } from "../../../store/userStore";
+import { AUTH_TOKEN_NAME } from "../../../utils/defaults";
 
 
 
@@ -67,6 +68,7 @@ export default function UserDashboardLayout(){
 
     const handleLogout = ()=>{
         logout();
+        sessionStorage.removeItem(AUTH_TOKEN_NAME);
         navigate("/");
         message.success("User Logged out successfully...")
     }

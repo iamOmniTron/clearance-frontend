@@ -2,10 +2,10 @@ import { Breadcrumb, Button, Col, Divider, Row,Typography } from "antd";
 import { RxDashboard } from "react-icons/rx";
 import UserChart from "./components/donut";
 import { userStore } from "../../store/userStore";
-import { STAGES } from "../../DB/stages";
 import Progress from "./components/progress";
 import { BiSync } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
+import { useStages } from "../../hooks/stages";
 
 
 const {Title} = Typography;
@@ -18,13 +18,15 @@ export default function UserOverview(){
 
     const navigate = useNavigate();
 
-    const goToFacility = ()=> navigate("/student/facility")
+    const goToFacility = ()=> navigate("/student/facility");
+
+    const {stages} = useStages();
         
     const currentuser = userStore(state=>state.user);
 
-    const userStage = currentuser.status;
+    const userStage = currentuser.Stage;
     
-    const completedPercentage = ((userStage.id * 100)/STAGES.length)
+    const completedPercentage = ((userStage.id * 100)/stages.length)
     const remaining = (100 - completedPercentage);
 
     return(
@@ -60,11 +62,11 @@ export default function UserOverview(){
                 }}>
                     <Title level={3}>Dashboard</Title>
                 </div>
-                <Row style={{height:"40vh",display:"flex",justifyContent:"space-between"}} gutter={24}>
+                <Row style={{height:"45vh",display:"flex",justifyContent:"space-between"}} gutter={24}>
                     <Col style={{display:"flex",gap:"10em",alignItems:"flex-end",height:"100%",boxShadow:"3px 8px 17px 0px rgba(0,0,0,0.75)"}} span={16}>
                             <UserChart completed={completedPercentage} left={remaining}/>
                             <div style={{height:"100%",paddingTop:"2em"}}>
-                                <Progress userStage={userStage} stages={STAGES}/>
+                                <Progress userStage={userStage} stages={stages}/>
                             </div>
                     </Col>
                     <Col span={7} style={{display:"flex",flexDirection:"column",height:"100%",boxShadow:"3px 8px 17px 0px rgba(0,0,0,0.75)"}}>

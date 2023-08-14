@@ -7,9 +7,9 @@ import { MenuFoldOutlined,MenuUnfoldOutlined,LogoutOutlined } from "@ant-design/
 import { Link, Outlet,useNavigate } from "react-router-dom";
 import {HiOutlineDocumentText} from "react-icons/hi";
 import {useState} from "react"
-import {AiOutlineSetting} from "react-icons/ai"
+import {AiOutlineSetting,AiFillFileText,AiOutlineForm} from "react-icons/ai"
 import {FaUsers} from "react-icons/fa";
-import {BsFillCalendar2Fill} from "react-icons/bs";
+import {BsFillCalendar2Fill,BsFolder} from "react-icons/bs";
 import {LuCalendarClock} from "react-icons/lu"
 import {BiSolidHourglass, BiUserCircle} from "react-icons/bi"
 import { userStore } from "../../../store/userStore";
@@ -55,6 +55,29 @@ const USER_DASH_LINKS = [
                 key:"manage-sessions",
                 label:<Link to="/admin/sessions"><b>Manage Session</b></Link>,
                 icon:<LuCalendarClock style={{
+                    fontSize:"2em"
+                }}/>
+            }
+        ]
+    },
+    {
+        key:"folders",
+        label:<b>Files</b>,
+        icon: <BsFolder style={{
+            fontSize:"2em"
+        }}/>,
+        children:[
+            {
+                key:"files-uploaded",
+                label:<Link to="/admin/documents"><b>Uploaded Files</b></Link>,
+                icon:<AiFillFileText style={{
+                    fontSize:"2em"
+                }}/>
+            },
+            {
+                key:"forms-uploaded",
+                label:<Link to="/admin/forms"><b>Uploaded Forms</b></Link>,
+                icon:<AiOutlineForm  style={{
                     fontSize:"2em"
                 }}/>
             }

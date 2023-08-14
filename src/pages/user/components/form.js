@@ -1,19 +1,35 @@
-import { Button, Modal,Form,Input } from "antd";
+import { Button, Modal,Form,Input, message } from "antd";
 import { useState } from "react";
+import { useUploadForm } from "../../../hooks/uploads";
+import { useNavigate } from "react-router-dom";
 
 
 
 
 export default function UserForm({userStage}){
     const [isOpen,setIsOpen] = useState(false);
+    const navigate = useNavigate();
+    const [form] = Form.useForm();
+
+    const uploadForm = useUploadForm();
+
+    const handleFormUpload = async ()=>{
+        const payload = {
+            data:JSON.stringify(form.getFieldValue()),
+            formType:userStage.FormConfigId
+        };
+        await uploadForm(payload);
+        message.success("Form Uploaded successfully");
+        return navigate("/student");
+    }
 
     function createDynamicForm(){
         const formItems = [];
         
-        userStage.formType.fields.forEach((field,idx)=>{
+        JSON.parse(userStage.FormConfig?.fields).forEach((field,idx)=>{
             formItems.push(
                 <Form.Item key={idx} name={field.name}>
-                    <Input placeholder={field.info}/>
+                    <Input placeholder={field.placeholder}/>
                 </Form.Item>
             )
         });
@@ -26,14 +42,14 @@ export default function UserForm({userStage}){
             <Button type="primary" style={{backgroundColor:"green"}} onClick={()=>setIsOpen(true)}>
                 Proceed Form Upload
             </Button>
-            <Modal footer={null} open={isOpen} onCancel={()=>setIsOpen(false)} title={`${userStage.formType.name}`}>
-                <Form>
+            <Modal footer={null} open={isOpen} onCancel={()=>setIsOpen(false)} title={`${userStage.FormConfig?.name}`}>
+                <Form form={form}>
                     {createDynamicForm()}
                     <Form.Item wrapperCol={{
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" style={{backgroundColor:"green"}}>
+                        <Button type="primary" style={{backgroundColor:"green"}} onClick={handleFormUpload}>
                         Submit
                         </Button>
                     </Form.Item>

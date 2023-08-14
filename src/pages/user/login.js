@@ -1,10 +1,11 @@
 import {Avatar,Button,Checkbox,Form,Input,message,Typography} from "antd";
 import Logo from "../../assets/logo.png"
 import { useRef, useState } from "react";
-import { USERS } from "../../DB/users";
+import { AUTH_TOKEN_NAME } from "../../utils/defaults";
 import { extractValueFromInputRef } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
-import { userStore } from "../../store/userStore";
+import { userStore,getUserProfile } from "../../store/userStore";
+import { useLogin } from "../../hooks/auth";
 
 const {Title} = Typography;
 
@@ -12,30 +13,38 @@ const {Title} = Typography;
 export default function LoginUser(){
     const [loading,setLoading] = useState(false);
 
+    const [form] = Form.useForm();
+
     const navigate = useNavigate();
     const setUser = userStore(state=>state.setUser);
+    const loginUser = useLogin();
 
 
     const regnumRef = useRef(null);
     const passRef = useRef(null);
 
 
-    const handleLogin = ()=>{
+    const handleLogin = async()=>{
         setLoading(true);
-        const match = USERS.find(u=>u.registrationNumber.toLowerCase() === extractValueFromInputRef(regnumRef).toLowerCase());
-        if(!match){
-            setLoading(false)
-            return message.error("Invalid Reg. Number/ Password");
-    }
-        const isPassMatched = match.password.toLowerCase() == extractValueFromInputRef(passRef).toLowerCase();
-        if(!isPassMatched){
+        const payload = {
+            registrationNumber:extractValueFromInputRef(regnumRef),
+            password:extractValueFromInputRef(passRef)
+        }
+        const responseToken = await loginUser(payload);
+        if(!responseToken){
             setLoading(false);
-            return message.error("Invalid Reg. Number/ Password");
-        } 
-        setUser(match);
-        navigate("/student")
-        message.success("Login successful")
-        setLoading(false)
+            return;
+        }
+        sessionStorage.setItem(AUTH_TOKEN_NAME,responseToken);
+        message.success("User Logged in successfully");
+        form.resetFields();
+        setTimeout(async()=>{
+            const {password,...userData} = await getUserProfile();
+            message.success("Redirecting to Dashboard...")
+            setUser(userData);
+            setLoading(false);
+            return navigate("/student")
+        },2000)
     }
 
     return(
@@ -63,7 +72,7 @@ export default function LoginUser(){
                         <Avatar size={60} src={<img src={Logo} alt="school logo"/>}/>
                         <Title level={4}>Student Login</Title>
                     </div>
-                    <Form style={{flex:1,width:"100%"}}>
+                    <Form form={form} style={{flex:1,width:"100%"}}>
                         <Form.Item>
                             <Input ref={regnumRef} placeholder="Enter Reg. Number"/>
                         </Form.Item>

@@ -85,3 +85,27 @@ export const destroy = async (endpoint) => {
         message.error(err?.response?.data?.message??err.message??"Something went wrong")
     }
 }
+
+
+export const upload = async(endpoint, withCredentials, body, query) => {
+    try {
+        const token = sessionStorage.getItem(AUTH_TOKEN_NAME);
+        const headerPayload = withCredentials ? {
+            withCredentials: false,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+    } : {};
+    const qs = serializeObjectToUrlParams(query);
+    const res = await axios.post(`${SERVER_URL}/${endpoint}?${qs}`,body,headerPayload);
+    const {data:response} = res;
+    if(!response.success){
+        return message.error(response.message);
+    }
+    return response;
+    }catch(err){
+        console.log(err);
+        message.error(err?.response?.data?.message??err.message??"Something went wrong")
+        return;
+    }
+}

@@ -63,7 +63,7 @@ export default function UserProfile(){
                         <Col span={16}>
                             <Descriptions column={1}>
                                 <Descriptions.Item label="Fullname">
-                                    {currentUser?.name}
+                                    {currentUser?.fullname}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="E-mail">
                                     {currentUser?.email}
@@ -81,7 +81,10 @@ export default function UserProfile(){
                                     {currentUser?.department}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Current Status">
-                                    <Tag color="green">{currentUser?.status?.label}</Tag>
+                                    <Tag color="green">{currentUser?.Stage?.label}</Tag>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="Session Registered">
+                                    <Tag color="green">{currentUser?.Session?.title}</Tag>
                                 </Descriptions.Item>
                             </Descriptions>
                         </Col>

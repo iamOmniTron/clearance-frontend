@@ -1,10 +1,13 @@
-import { Breadcrumb,Tag,Descriptions } from "antd"
+import { Breadcrumb,Tag,Descriptions, message } from "antd"
 import { BiSync } from "react-icons/bi"
 import { RxDashboard } from "react-icons/rx"
 import { STAGES } from "../../../DB/stages";
-import { userStore } from "../../../store/userStore";
+import { getUserProfile, userStore } from "../../../store/userStore";
 import { FileUpload } from "./fileUpload";
 import UserForm from "./form";
+import { useStages } from "../../../hooks/stages";
+import { useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -12,8 +15,27 @@ import UserForm from "./form";
 
 export default function Facility(){
 
-    const currentUser = userStore(state=>state.user);
-    const userStage = currentUser.status;
+    const u = userStore(state=>state.user);
+    const [user,setUser] = useState(u);
+
+    const navigate = useNavigate();
+
+    useEffect(()=>{
+        const getUser = async ()=>{
+            const response = await getUserProfile();
+            if(!response){
+                message.success("User unauthenticated");
+                return navigate("/login");
+            }
+            const {password,...data} = response;
+            setUser(data);
+        }
+        getUser();
+    },[])
+
+    
+    const userStage = user?.Stage;
+
 
     return(
         <>
@@ -48,18 +70,18 @@ export default function Facility(){
             }}>
                 <Descriptions style={{marginTop:"3em"}} column={1}>
                     <Descriptions.Item label="Previous Stage">
-                        {STAGES[userStage.id == 1 ? 0 : (userStage.id-2)].label}
+                        {userStage.prerequisiteStage ? userStage.prerequisiteStage.label : "None"}
                     </Descriptions.Item>
                     <Descriptions.Item label="Current Stage/Process">
-                        {userStage.name}
+                        {userStage?.name}
                     </Descriptions.Item>
                     <Descriptions.Item contentStyletyle={{marginRight:"3em"}} label="Action Required">
                     {
-                        userStage.isUpload? (
+                        userStage?.isUpload? (
                             <>
                                 <FileUpload userStage={userStage}/>
                             </>
-                        ):userStage.isForm ? (
+                        ):userStage?.isForm ? (
                             <>
                                 <UserForm userStage={userStage}/>
                             </>

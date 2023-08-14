@@ -16,6 +16,8 @@ import DocumentsPage from "./pages/admin/documents";
 import Facility from "./pages/user/components/facility";
 import RefreshContext from "./context/refreshContext";
 import { useState } from "react";
+import UploadedFormsPage from "./pages/admin/uploadedForms";
+import UploadedDocumentsPage from "./pages/admin/uploadedDocuments";
 
 
 
@@ -42,6 +44,8 @@ function App() {
             <Route path="sessions" element={<ManageSessions/>}/>
             <Route path="users" element={<ManageUsers/>}/>
             <Route path="users/user" element={<SingleUser/>}/>
+            <Route path="forms" element={<UploadedFormsPage/>}/>
+            <Route path="documents" element={<UploadedDocumentsPage/>}/>
             <Route path="settings/forms" element={<FormsListPage/>}/>
             <Route path="settings/document-type" element={<DocumentsPage/>}/>
             <Route path="settings/stages" element={<StagesPage/>}/>
