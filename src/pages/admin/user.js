@@ -6,7 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {AiFillStepBackward,AiFillStepForward} from "react-icons/ai";
 import { FaUser } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
-import { useStages} from "../../hooks/stages";
 import { useAdvanceStudent, useReverseAdvanceStudent, useUpdateStudent } from "../../hooks/userQuery";
 import { extractValueFromInputRef } from "../../utils/helpers";
 import { useSessions } from "../../hooks/sessionsQuery";
@@ -20,8 +19,8 @@ const {Option} = Select;
 
 export default function SingleUser(){
     const [isOpen,setIsOpen] = useState(false);
+    const [formLoading,setFormLoading] = useState(false);
     const {state:user} = useLocation();
-    const [stage,setStage] = useState(user.Stage?.id);
     const [sess,setSess] = useState(user.Session.id)
     const navigate = useNavigate();
 
@@ -29,8 +28,6 @@ export default function SingleUser(){
         (!user || user == null || Object.keys(user).length <1) && navigate(-1)
     },[])
 
-
-    const {stages} = useStages();
     const advanceUser = useAdvanceStudent();
     const revertUserStage = useReverseAdvanceStudent()
     const {sessions} = useSessions();
@@ -55,19 +52,23 @@ export default function SingleUser(){
     const regRef = useRef(null)
 
     const handleSubmit = async ()=>{
-        const payload = {
-            fullname:extractValueFromInputRef(nameRef),
-            email:extractValueFromInputRef(emailRef),
-            phone:extractValueFromInputRef(phoneRef),
-            department:extractValueFromInputRef(departmentRef),
-            registrationNumber:extractValueFromInputRef(regRef),
-            StageId:stage,
-            SessionId:sess
+        try {
+            setFormLoading(true)
+            const payload = {
+                fullname:extractValueFromInputRef(nameRef),
+                email:extractValueFromInputRef(emailRef),
+                phone:extractValueFromInputRef(phoneRef),
+                department:extractValueFromInputRef(departmentRef),
+                registrationNumber:extractValueFromInputRef(regRef),
+                SessionId:sess
+            }
+            await updateUser(user.id,payload);
+            message.success("User Data updates successfully")
+            setIsOpen(false);
+            return navigate(-1);
+        } catch (error) {
+            setFormLoading(false)
         }
-        await updateUser(user.id,payload);
-        message.success("User Data updates successfully")
-        setIsOpen(false);
-        return navigate(-1);
     }
 
     return(
@@ -191,15 +192,6 @@ export default function SingleUser(){
                             }
                         </Select>
                     </Form.Item>
-                    {/* <Form.Item name="Stage">
-                        <Select onChange={(e)=>setStage(e)} placeholder="Select Student Current Stage">
-                            {
-                                stages.map((s,idx)=>(
-                                    <Option value={s.id} key={idx}>{s.name}</Option>
-                                ))
-                            }
-                        </Select>
-                    </Form.Item> */}
                     <Form.Item name="department">
                         <Input ref={departmentRef} placeholder="Enter Enter Department"/>
                     </Form.Item>
@@ -207,7 +199,7 @@ export default function SingleUser(){
                                 span:8,
                                 offset:20
                               }}>
-                        <Button onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
+                        <Button loading={formLoading} onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
                             Update
                         </Button>
                     </Form.Item>

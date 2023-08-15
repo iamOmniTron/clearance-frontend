@@ -46,6 +46,7 @@ const SESSION_COLUMNS = [
 
 
 function SessionEdit({session}){
+    const [isLoading,setIsLoading] = useState(false);
     const [isOpen,setIsOpen] = useState(false);
     const [status,setStatus] = useState(session.active);
     const [year,setYear] = useState(session.value)
@@ -60,21 +61,33 @@ function SessionEdit({session}){
 
 
     const handleDeleteSession = async ()=>{
-        await deleteSession(session.id);
-        message.success("Session deleted successfully");
-        setFlag(!flag)
+        try {
+            setIsLoading(true)
+            await deleteSession(session.id);
+            message.success("Session deleted successfully");
+            setIsLoading(false);
+            setFlag(!flag)
+        } catch (error) {
+            setIsLoading(false);
+        }
     }
 
     const handleSubmit = async ()=>{
-        const payload = {
-            title:extractValueFromInputRef(titleRef),
-            value:year,
-            active:status
+        try {
+            setIsLoading(true);     
+            const payload = {
+                title:extractValueFromInputRef(titleRef),
+                value:year,
+                active:status
+            }
+            await updateSession(session.id,payload);
+            message.success("Session Updated successfully");
+            setIsLoading(false);
+            setFlag(!flag);
+            setIsOpen(false);
+        } catch (error) {
+            setIsLoading(false)
         }
-        await updateSession(session.id,payload);
-        message.success("Session Updated successfully");
-        setFlag(!flag);
-        setIsOpen(false);
     }
 
     return(
@@ -83,7 +96,7 @@ function SessionEdit({session}){
                 <Button type="primary" onClick={()=>setIsOpen(true)}>
                     <BiEdit style={{fontSize:20}}/>
                 </Button>
-                <Button type="primary" danger onClick={handleDeleteSession}>
+                <Button isLoading={isLoading} type="primary" danger onClick={handleDeleteSession}>
                     <BiTrash style={{fontSize:20}}/>
                 </Button>
             </Space>
@@ -106,7 +119,7 @@ function SessionEdit({session}){
                                 span:8,
                                 offset:20
                               }}>
-                            <Button type="primary" style={{backgroundColor:"green"}} onClick={handleSubmit}>
+                            <Button loading={isLoading} type="primary" style={{backgroundColor:"green"}} onClick={handleSubmit}>
                                 Update
                             </Button>
                         </Form.Item>
@@ -123,6 +136,7 @@ export default function ManageSessions(){
     const [isOpen,setIsOpen] = useState(false);
     const [status,setStatus] = useState(false);
     const [year,setYear] = useState("");
+    const [running,setRunning] = useState(false);
 
 
     const {flag,setFlag} = useContext(RefreshContext);
@@ -135,15 +149,22 @@ export default function ManageSessions(){
     const createSession = useCreateSession();
 
     const handleSubmit = async ()=>{
-        const payload = {
-            title:extractValueFromInputRef(titleRef),
-            value:year,
-            active:status
+        try {
+            setRunning(true)
+            const payload = {
+                title:extractValueFromInputRef(titleRef),
+                value:year,
+                active:status
+            }
+            await createSession(payload);
+            message.success("Session Created successfully");
+            setRunning(false);
+            setIsOpen(false);
+            setFlag(!flag);
+            
+        } catch (error) {
+            setRunning(false);
         }
-        await createSession(payload);
-        message.success("Session Created successfully");
-        setIsOpen(false);
-        setFlag(!flag);
     } 
 
     return(
@@ -209,7 +230,7 @@ export default function ManageSessions(){
                                 span:8,
                                 offset:20
                               }}>
-                            <Button type="primary" style={{backgroundColor:"green"}} onClick={handleSubmit}>
+                            <Button loading={running} type="primary" style={{backgroundColor:"green"}} onClick={handleSubmit}>
                                 Create
                             </Button>
                         </Form.Item>

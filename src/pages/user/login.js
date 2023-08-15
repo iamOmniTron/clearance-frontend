@@ -25,26 +25,30 @@ export default function LoginUser(){
 
 
     const handleLogin = async()=>{
-        setLoading(true);
-        const payload = {
-            registrationNumber:extractValueFromInputRef(regnumRef),
-            password:extractValueFromInputRef(passRef)
-        }
-        const responseToken = await loginUser(payload);
-        if(!responseToken){
+        try {      
+            setLoading(true);
+            const payload = {
+                registrationNumber:extractValueFromInputRef(regnumRef),
+                password:extractValueFromInputRef(passRef)
+            }
+            const responseToken = await loginUser(payload);
+            if(!responseToken){
+                setLoading(false);
+                return;
+            }
+            sessionStorage.setItem(AUTH_TOKEN_NAME,responseToken);
+            message.success("User Logged in successfully");
+            form.resetFields();
+            setTimeout(async()=>{
+                const {password,...userData} = await getUserProfile();
+                message.success("Redirecting to Dashboard...")
+                setUser(userData);
+                setLoading(false);
+                return navigate("/student")
+            },2000)
+        } catch (error) {
             setLoading(false);
-            return;
         }
-        sessionStorage.setItem(AUTH_TOKEN_NAME,responseToken);
-        message.success("User Logged in successfully");
-        form.resetFields();
-        setTimeout(async()=>{
-            const {password,...userData} = await getUserProfile();
-            message.success("Redirecting to Dashboard...")
-            setUser(userData);
-            setLoading(false);
-            return navigate("/student")
-        },2000)
     }
 
     return(

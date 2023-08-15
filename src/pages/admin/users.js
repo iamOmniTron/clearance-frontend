@@ -97,6 +97,7 @@ export default function ManageUsers(){
     const [sess,setSess] = useState("");
     const {flag,setFlag} = useContext(RefreshContext);
     const {loading,users} = useUsers(flag);
+    const [formLoading,setFormLoading] = useState(false);
     const {stages} = useStages();
     const {sessions} = useSessions();
     
@@ -110,19 +111,25 @@ export default function ManageUsers(){
 
 
     const handleSubmit = async ()=>{
-        const payload = {
-            fullname:extractValueFromInputRef(nameRef),
-            email:extractValueFromInputRef(emailRef),
-            phone:extractValueFromInputRef(phoneRef),
-            department:extractValueFromInputRef(departmentRef),
-            registrationNumber:extractValueFromInputRef(regRef),
-            StageId:stage,
-            SessionId:sess
+        try {     
+            setFormLoading(true)
+            const payload = {
+                fullname:extractValueFromInputRef(nameRef),
+                email:extractValueFromInputRef(emailRef),
+                phone:extractValueFromInputRef(phoneRef),
+                department:extractValueFromInputRef(departmentRef),
+                registrationNumber:extractValueFromInputRef(regRef),
+                StageId:stage,
+                SessionId:sess
+            }
+           const response = await createUser(payload);
+           setFormLoading(false);
+            message.success(response??"user registered successfully");
+            setIsOpen(false);
+            setFlag(!flag);
+        } catch (error) {
+            setFormLoading(false)
         }
-       const response = await createUser(payload);
-        message.success(response??"user registered successfully");
-        setIsOpen(false);
-        setFlag(!flag);
     }
 
 
@@ -227,7 +234,7 @@ export default function ManageUsers(){
                                 span:8,
                                 offset:20
                               }}>
-                        <Button onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
+                        <Button loading={formLoading} onClick={handleSubmit} type="primary" style={{backgroundColor:"green"}}>
                             Submit
                         </Button>
                     </Form.Item>

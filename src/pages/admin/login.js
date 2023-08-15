@@ -31,26 +31,30 @@ export default function AdminLogin(){
 
   
     const handleLogin = async ()=>{
-        setLoading(true);
-        const payload = {
-            userId:extractValueFromInputRef(idRef),
-            password:extractValueFromInputRef(passRef)
-        }
-        const responseToken = await loginAdmin(payload);
-        if(!responseToken){
+        try {       
+            setLoading(true);
+            const payload = {
+                userId:extractValueFromInputRef(idRef),
+                password:extractValueFromInputRef(passRef)
+            }
+            const responseToken = await loginAdmin(payload);
+            if(!responseToken){
+                setLoading(false);
+                return;
+            }
+            sessionStorage.setItem(AUTH_TOKEN_NAME,responseToken);
+            message.success("Admin Logged in successfully");
+            form.resetFields();
+            setTimeout(async()=>{
+                const {password,...userData} = await getUserProfile();
+                message.success("Redirecting to Dashboard...")
+                setUser(userData);
+                setLoading(false);
+                return navigate("/admin")
+            },2000)
+        } catch (error) {
             setLoading(false);
-            return;
         }
-        sessionStorage.setItem(AUTH_TOKEN_NAME,responseToken);
-        message.success("Admin Logged in successfully");
-        form.resetFields();
-        setTimeout(async()=>{
-            const {password,...userData} = await getUserProfile();
-            message.success("Redirecting to Dashboard...")
-            setUser(userData);
-            setLoading(false);
-            return navigate("/admin")
-        },2000)
     }
 
     return(

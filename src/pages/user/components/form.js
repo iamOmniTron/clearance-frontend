@@ -8,19 +8,26 @@ import { useNavigate } from "react-router-dom";
 
 export default function UserForm({userStage}){
     const [isOpen,setIsOpen] = useState(false);
+    const [formLoading,setIsFormLoading] = useState(false);
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
     const uploadForm = useUploadForm();
 
     const handleFormUpload = async ()=>{
-        const payload = {
-            data:JSON.stringify(form.getFieldValue()),
-            formType:userStage.FormConfigId
-        };
-        await uploadForm(payload);
-        message.success("Form Uploaded successfully");
-        return navigate("/student");
+        try {
+            setIsFormLoading(true);
+            const payload = {
+                data:JSON.stringify(form.getFieldValue()),
+                formType:userStage.FormConfigId
+            };
+            await uploadForm(payload);
+            setIsFormLoading(false)
+            message.success("Form Uploaded successfully");
+            return navigate("/student");
+        } catch (error) {
+            setIsFormLoading(false)
+        }
     }
 
     function createDynamicForm(){
@@ -49,7 +56,7 @@ export default function UserForm({userStage}){
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" style={{backgroundColor:"green"}} onClick={handleFormUpload}>
+                        <Button loading={formLoading} type="primary" style={{backgroundColor:"green"}} onClick={handleFormUpload}>
                         Submit
                         </Button>
                     </Form.Item>

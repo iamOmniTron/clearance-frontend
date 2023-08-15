@@ -8,11 +8,11 @@ export default function UserChart({completed,left}){
         <DonutChart colors={["green","red"]} data={[
            {
       label: 'Done',
-      value: completed,
+      value: Math.floor(completed),
     },
     {
       label: 'left',
-      value: left,
+      value: Math.ceil(left),
     },
         ]} height={300} width={400}/>
     )

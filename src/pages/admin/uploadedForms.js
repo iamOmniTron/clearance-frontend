@@ -20,13 +20,13 @@ const FORMS_COLUMNS = [
         title:"Student",
         key:"student",
         dataIndex:"User",
-        render:(u)=>u.fullname
+        render:(u)=>u?.fullname
     },
     {
         title:"Stage",
         key:"stage",
         dataIndex:"User",
-        render:(user)=>user.Stage.name
+        render:(user)=>user?.Stage?.name
     },
     {
         title:"Form Name",
@@ -77,10 +77,10 @@ function FormsActions({form}){
                 <div>
                     <Descriptions column={1}>
                         <Descriptions.Item label="User Name">
-                            {form.User.fullname}
+                            {form.User?.fullname}
                         </Descriptions.Item>
                         <Descriptions.Item label="User Current Stage">
-                            {form.User.Stage.name}
+                            {form.User?.Stage.name}
                         </Descriptions.Item>
                         <span style={{fontWeight:"bold"}}>Form Details</span>
                         {
@@ -107,14 +107,14 @@ function FormsActions({form}){
 
 
 export default function UploadedFormsPage(){
-    
+
 
     const {flag} = useContext(RefreshContext);
 
 
 
     const {loading,forms} = useForms(flag);
-
+    console.log(forms)
 
     return(
         <>

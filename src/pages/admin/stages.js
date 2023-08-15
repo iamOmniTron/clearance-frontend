@@ -65,6 +65,7 @@ function PreviewStage({stage}){
     const [formType,setFormType] = useState(stage.FormConfigId);
     const [documentType,setDocumentType] = useState(stage.DocumentConfigId);
     const [previousStage,setPreviousStage] = useState(stage.prerequisiteStageId);
+    const [running,setRunning] = useState(false);
 
 
     const {flag,setFlag} = useContext(RefreshContext);
@@ -93,26 +94,38 @@ function PreviewStage({stage}){
     }
 
     const handleDeleteStage = async ()=>{
-        await deleteStage(stage.id);
-        message.success("Stage Deleted successfully");
-        setFlag(!flag);
+        try {
+            setRunning(true);
+            await deleteStage(stage.id);
+            message.success("Stage Deleted successfully");
+            setRunning(false);
+            setFlag(!flag);
+        } catch (error) {
+            setRunning(false);
+        }
     }
 
     const handleUpdateStage = async ()=>{
-        const payload = {
-            name:extractValueFromInputRef(nameRef),
-            label:extractValueFromInputRef(labelRef),
-            isIndex,
-            isForm,
-            isUpload:isDocumentUpload,
-            formType,
-            documentType,
-            previousStage
+        try {
+            setRunning(true);      
+            const payload = {
+                name:extractValueFromInputRef(nameRef),
+                label:extractValueFromInputRef(labelRef),
+                isIndex,
+                isForm,
+                isUpload:isDocumentUpload,
+                formType,
+                documentType,
+                previousStage
+            }
+            await updateStage(stage.id,payload);
+            message.success("Stage Updated successfully");
+            setRunning(false)
+            setIsOpen(false);
+            setFlag(!flag);
+        } catch (error) {
+            setRunning(false);
         }
-        await updateStage(stage.id,payload);
-        message.success("Stage Updated successfully");
-        setIsOpen(false);
-        setFlag(!flag);
     }
     return(
         <>
@@ -122,7 +135,7 @@ function PreviewStage({stage}){
                         fontSize:20
                     }}/>
                 </Button>
-                <Button type="primary" danger onClick={handleDeleteStage}>
+                <Button loading={running} type="primary" danger onClick={handleDeleteStage}>
                     <BiTrash style={{
                         fontSize:20
                     }}/>
@@ -185,7 +198,7 @@ function PreviewStage({stage}){
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" onClick={handleUpdateStage}>
+                        <Button loading={running} type="primary" onClick={handleUpdateStage}>
                             Update
                         </Button>
                     </Form.Item>
@@ -204,6 +217,7 @@ export default function StagesPage(){
     const [isDocumentUpload,setIsDocumentUpload] = useState(false);
     const [formType,setFormType] = useState(null);
     const [documentType,setDocumentType] = useState(null);
+    const [running,setRunning] = useState(false);
     const [previousStage,setPreviousStage] = useState(null);
 
 
@@ -232,20 +246,26 @@ export default function StagesPage(){
 
 
     const handleSubmit = async ()=>{
-        const payload = {
-            name:extractValueFromInputRef(nameRef),
-            label:extractValueFromInputRef(labelRef),
-            isIndex,
-            isForm,
-            isUpload:isDocumentUpload,
-            formType,
-            documentType,
-            previousStage
+        try {  
+            setRunning(true);     
+            const payload = {
+                name:extractValueFromInputRef(nameRef),
+                label:extractValueFromInputRef(labelRef),
+                isIndex,
+                isForm,
+                isUpload:isDocumentUpload,
+                formType,
+                documentType,
+                previousStage
+            }
+            await createStage(payload);
+            message.success("Stage Created Successfully");
+            setRunning(false);
+            setIsOpen(false);
+            setFlag(!flag);
+        } catch (error) {
+            setRunning(false);
         }
-        await createStage(payload);
-        message.success("Stage Created Successfully");
-        setIsOpen(false);
-        setFlag(!flag);
     }
 
     return(
@@ -353,7 +373,7 @@ export default function StagesPage(){
                                 span:8,
                                 offset:20
                               }}>
-                        <Button type="primary" onClick={handleSubmit}>
+                        <Button loading={running} type="primary" onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Form.Item>
