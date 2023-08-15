@@ -62,3 +62,22 @@ export const useDeleteUser = ()=>{
     }
     return deleteUser;
 }
+
+
+export const useAdvanceStudent = ()=>{
+    const advanceStudent = async (id)=>{
+        const url = `student/stage/advance/${id}`;
+        const response = await update(url,null);
+        return response;
+    }
+    return advanceStudent;
+}
+
+export const useReverseAdvanceStudent = ()=>{
+    const reverseAdvanceStudent = async (id)=>{
+        const url = `student/stage/reverse-advance/${id}`;
+        const response = await update(url,null);
+        return response;
+    }
+    return reverseAdvanceStudent;
+}

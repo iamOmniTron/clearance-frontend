@@ -113,7 +113,7 @@ export default function IndexPage(){
                             justifyContent:"center",
                             alignItems:"center",
                             height:"100%",
-                            backgroundColor:"rgba(0,0,0,0.5)"
+                            backgroundColor:"rgba(0,0,0,0.2)"
                         }}>
                             <img src={Background} alt="school of postgraduates" style={{
                                 position:"absolute",
@@ -131,7 +131,7 @@ export default function IndexPage(){
                                 display:"flex",
                                 // justifyContent:"center",
                                 alignItems:"center",
-                                backgroundColor:"rgba(0,0,0,0.3)",
+                                backgroundColor:"rgba(0,0,0,0.2)",
                                 flexDirection:"column"
                             }}>
                                 <Marquee autoFill speed={40} pauseOnClick pauseOnHover delay={1}>

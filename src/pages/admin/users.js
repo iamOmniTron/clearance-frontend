@@ -78,7 +78,7 @@ function PreviewUser({user}){
 
     return(
         <>
-            <Space wrap>
+            <Space direction="horizontal" wrap size={"small"}>
                 <Button  type="primary" onClick={handleNavigateToUserPreview}>
                     <EyeOutlined style={{fontSize:20}}/>
                 </Button>

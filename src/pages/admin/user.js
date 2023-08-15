@@ -1,12 +1,13 @@
-import { Breadcrumb,Button,Descriptions,Modal,Typography, message,Input,Form,Select } from "antd"
+import { Breadcrumb,Button,Descriptions,Modal,Typography, message,Input,Form,Select, Space,Popconfirm } from "antd"
 import { RxDashboard } from "react-icons/rx"
 import {DownloadOutlined} from "@ant-design/icons"
 import { useEffect,useState,useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import {AiFillStepBackward,AiFillStepForward} from "react-icons/ai";
 import { FaUser } from "react-icons/fa";
 import { BiEdit } from "react-icons/bi";
 import { useStages} from "../../hooks/stages";
-import { useUpdateStudent } from "../../hooks/userQuery";
+import { useAdvanceStudent, useReverseAdvanceStudent, useUpdateStudent } from "../../hooks/userQuery";
 import { extractValueFromInputRef } from "../../utils/helpers";
 import { useSessions } from "../../hooks/sessionsQuery";
 
@@ -30,8 +31,21 @@ export default function SingleUser(){
 
 
     const {stages} = useStages();
+    const advanceUser = useAdvanceStudent();
+    const revertUserStage = useReverseAdvanceStudent()
     const {sessions} = useSessions();
     const updateUser = useUpdateStudent();
+
+    const handleAdvanceUser = async ()=>{
+        const {message:response} = await advanceUser(user.id);
+        message.success(response??"User stage advanced successfully");
+        return navigate(-1)
+    }
+    const handleRevertUserStage = async ()=>{
+        const {message:response} = await revertUserStage(user.id);
+        message.success(response??"User stage reverted successfully");
+        return navigate(-1)
+    }
 
     
     const nameRef = useRef(null);
@@ -118,12 +132,36 @@ export default function SingleUser(){
                             <b>{user.Stage.label}</b>
                         </Descriptions.Item>
                     </Descriptions>
-                    <div style={{display:"flex",justifyContent:"flex-end"}}>
-                        <Button type="primary" onClick={()=>setIsOpen(true)}>
+                    <Space wrap style={{display:"flex",justifyContent:"flex-end"}}>
+                        <Popconfirm
+                        title="Advance user stage"
+                        description="are you sure you want to proceed?"
+                        onConfirm={handleAdvanceUser}
+                        okText="Yes"
+                        cancelText="No"
+                        >
+                            <Button type="primary" style={{backgroundColor:"green",padding:"1em",display:"flex",alignItems:"center"}}>
+                                <AiFillStepForward style={{fontSize:20}}/>
+                                Advance User Stage
+                            </Button>
+                        </Popconfirm>
+                        <Popconfirm
+                        title="Revert user stage"
+                        description="are you sure you want to proceed?"
+                        onConfirm={handleRevertUserStage}
+                        okText="Yes"
+                        cancelText="No"
+                        >
+                        <Button type="primary" style={{backgroundColor:"orange",padding:"1em",display:"flex",alignItems:"center"}}>
+                            <AiFillStepBackward style={{fontSize:20}}/>
+                            Revert User Stage
+                        </Button>
+                        </Popconfirm>
+                        <Button type="primary"  style={{padding:"1em",display:"flex",alignItems:"center"}} onClick={()=>setIsOpen(true)}>
                             <BiEdit style={{fontSize:20}}/>
                             Edit User
                         </Button>
-                    </div>
+                    </Space>
                 </div>
             </div>
             <Modal open={isOpen} onCancel={()=>setIsOpen(false)} footer={null} title="Edit User">
