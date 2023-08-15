@@ -153,10 +153,10 @@ export default function ManageUsers(){
                 </Breadcrumb>
                 <div>
                     <Space>
-                    <Button type="primary" style={{backgroundColor:"green"}}>
+                    {/* <Button type="primary" style={{backgroundColor:"green"}}>
                         <UploadOutlined style={{fontSize:20}}/>
                         Upload via xls
-                    </Button>
+                    </Button> */}
                     <Button type="primary" onClick={()=>setIsOpen(true)}>
                         <PlusOutlined/>
                         Add Student
@@ -174,9 +174,9 @@ export default function ManageUsers(){
                        ALL STUDENTS
                     </Title>
                     <div>
-                        <Button icon={<DownloadOutlined style={{fontSize:20}}/>} type="primary" style={{backgroundColor:"green"}}>
+                        {/* <Button icon={<DownloadOutlined style={{fontSize:20}}/>} type="primary" style={{backgroundColor:"green"}}>
                             Download
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
                 <Spin spinning={loading}>

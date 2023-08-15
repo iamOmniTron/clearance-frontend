@@ -106,9 +106,9 @@ export default function SingleUser(){
                        STUDENT DETAILS
                     </Title>
                     <div>
-                        <Button icon={<DownloadOutlined style={{fontSize:20}}/>} type="primary" style={{backgroundColor:"green"}}>
+                        {/* <Button icon={<DownloadOutlined style={{fontSize:20}}/>} type="primary" style={{backgroundColor:"green"}}>
                             Download
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
                 <div style={{marginTop:"2em",boxShadow:"3px 8px 17px 0px rgba(0,0,0,0.75)",padding:"1em 1em 2em 3em",borderRadius:"2px"}}>
@@ -191,7 +191,7 @@ export default function SingleUser(){
                             }
                         </Select>
                     </Form.Item>
-                    <Form.Item name="Stage">
+                    {/* <Form.Item name="Stage">
                         <Select onChange={(e)=>setStage(e)} placeholder="Select Student Current Stage">
                             {
                                 stages.map((s,idx)=>(
@@ -199,7 +199,7 @@ export default function SingleUser(){
                                 ))
                             }
                         </Select>
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name="department">
                         <Input ref={departmentRef} placeholder="Enter Enter Department"/>
                     </Form.Item>
